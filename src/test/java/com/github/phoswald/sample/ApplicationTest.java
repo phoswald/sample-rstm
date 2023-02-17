@@ -85,6 +85,19 @@ class ApplicationTest {
             body(equalTo("{\"output\":\"Received Test Input\"}"));
     }
 
+    @Test
+    void getSamplePage() {
+        when().
+            get("/app/pages/sample").
+        then().
+            statusCode(200).
+            contentType("text/html").
+            body(startsWith("<!doctype html>"),
+                containsString("<title>Sample Page</title>"),
+                containsString("<span>Hello, World!</span>"), // #{greeting}
+                containsString("<td>Test Config Value</td>")); // ${model.sampleConfig}
+    }
+
     private static class TestModule extends ApplicationModule {
         @Override
         public ConfigProvider getConfigProvider() {

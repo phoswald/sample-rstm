@@ -8,6 +8,7 @@ import static com.github.phoswald.rstm.http.server.HttpServerConfig.route;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import com.github.phoswald.rstm.http.HttpResponse;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.sample.sample.EchoRequest;
+import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 
 import jakarta.json.bind.Jsonb;
@@ -30,13 +32,16 @@ public class Application {
 
     private final int port;
     private final SampleResource sampleResource;
+    private final SampleController sampleController;
     private HttpServer httpServer;
 
     public Application( //
             ConfigProvider config, //
-            SampleResource sampleResource) {
+            SampleResource sampleResource, //
+            SampleController sampleController) {
         this.port = Integer.parseInt(config.getConfigProperty("app.http.port").orElse("8080"));
         this.sampleResource = sampleResource;
+        this.sampleController = sampleController;
     }
 
     public static void main(String[] args) {
@@ -67,6 +72,12 @@ public class Application {
                                         .body(serializeJson(sampleResource.postEcho( //
                                                 deserializeJson(EchoRequest.class, request.body())))) //
                                         .build())), //
+                        route("/app/pages/sample", //
+                                get(request -> HttpResponse.builder() //
+                                        .status(200) //
+                                        .contentType("text/html") //
+                                        .body(sampleController.getSamplePage().getBytes(StandardCharsets.UTF_8)) //
+                                        .build())), //
                         route("/", //
                                 resources("/html/")) //
                 )) //
@@ -76,6 +87,8 @@ public class Application {
     void stop() {
         httpServer.close();
     }
+
+    // TODO: support XML and JSON in rstm
 
     private static byte[] serializeXml(Object object) {
         var buffer = new ByteArrayOutputStream();

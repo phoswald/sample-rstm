@@ -33,8 +33,13 @@
       <artifactId>rstm-http</artifactId>
       <version>${rstm.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.github.phoswald</groupId>
+      <artifactId>rstm-template</artifactId>
+      <version>${rstm.version}</version>
+    </dependency>
     
-    <!-- TODO -->
+    <!-- TODO: support XML and JSON in rstm -->
     <dependency>
       <groupId>jakarta.xml.bind</groupId>
       <artifactId>jakarta.xml.bind-api</artifactId>
