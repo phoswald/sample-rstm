@@ -1,14 +1,12 @@
 package com.github.phoswald.sample;
 
+import static com.github.phoswald.rstm.http.codec.json.JsonCodec.json;
+import static com.github.phoswald.rstm.http.codec.xml.XmlCodec.xml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.combine;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.get;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.post;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.resources;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.route;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,14 +19,9 @@ import com.github.phoswald.sample.sample.EchoRequest;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 
-import jakarta.json.bind.Jsonb;
-import jakarta.json.bind.JsonbBuilder;
-import jakarta.xml.bind.JAXB;
-
 public class Application {
 
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
-    private static final Jsonb json = JsonbBuilder.create();
 
     private final int port;
     private final SampleResource sampleResource;
@@ -54,59 +47,25 @@ public class Application {
         httpServer = new HttpServer(HttpServerConfig.builder() //
                 .httpPort(port) //
                 .filter(combine( //
+                        route("/", //
+                                resources("/html/")), //
                         route("/app/rest/sample/time", //
                                 get(request -> HttpResponse.text(200, sampleResource.getTime()))), //
                         route("/app/rest/sample/config", //
                                 get(request -> HttpResponse.text(200, sampleResource.getConfig()))), //
                         route("/app/rest/sample/echo-xml", //
-                                post(request -> HttpResponse.builder() //
-                                        .status(200) //
-                                        .contentType("text/xml") //
-                                        .body(serializeXml(sampleResource.postEcho( //
-                                                deserializeXml(EchoRequest.class, request.body())))) //
-                                        .build())), //
+                                post(request -> HttpResponse.body(200, xml(), //
+                                        sampleResource.postEcho(request.body(xml(), EchoRequest.class))))), //
                         route("/app/rest/sample/echo-json", //
-                                post(request -> HttpResponse.builder() //
-                                        .status(200) //
-                                        .contentType("application/json") //
-                                        .body(serializeJson(sampleResource.postEcho( //
-                                                deserializeJson(EchoRequest.class, request.body())))) //
-                                        .build())), //
+                                post(request -> HttpResponse.body(200, json(), //
+                                        sampleResource.postEcho(request.body(json(), EchoRequest.class))))), //
                         route("/app/pages/sample", //
-                                get(request -> HttpResponse.builder() //
-                                        .status(200) //
-                                        .contentType("text/html") //
-                                        .body(sampleController.getSamplePage().getBytes(StandardCharsets.UTF_8)) //
-                                        .build())), //
-                        route("/", //
-                                resources("/html/")) //
+                                get(request -> HttpResponse.html(200, sampleController.getSamplePage()))) //
                 )) //
                 .build());
     }
 
     void stop() {
         httpServer.close();
-    }
-
-    // TODO: support XML and JSON in rstm
-
-    private static byte[] serializeXml(Object object) {
-        var buffer = new ByteArrayOutputStream();
-        JAXB.marshal(object, buffer);
-        return buffer.toByteArray();
-    }
-
-    private static <T> T deserializeXml(Class<T> clazz, byte[] bytes) {
-        return JAXB.unmarshal(new ByteArrayInputStream(bytes), clazz);
-    }
-
-    private static byte[] serializeJson(Object object) {
-        var buffer = new ByteArrayOutputStream();
-        json.toJson(object, buffer);
-        return buffer.toByteArray();
-    }
-
-    private static <T> T deserializeJson(Class<T> clazz, byte[] bytes) {
-        return json.fromJson(new ByteArrayInputStream(bytes), clazz);
     }
 }
