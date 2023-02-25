@@ -1,9 +1,8 @@
 package com.github.phoswald.sample.sample;
 
-import java.util.function.Function;
-
 import com.github.phoswald.rstm.config.ConfigProvider;
 import com.github.phoswald.rstm.template.TemplateEngine;
+import com.github.phoswald.rstm.template.Template;
 
 public class SampleController {
 
@@ -15,7 +14,7 @@ public class SampleController {
 
     public String getSamplePage() {
         TemplateEngine templateEngine = new TemplateEngine();
-        Function<SampleViewModel, String> template = templateEngine.compile(SampleViewModel.class, "sample");
-        return template.apply(SampleViewModel.create(sampleConfig));
+        Template<SampleViewModel> template = templateEngine.compile(SampleViewModel.class, "sample");
+        return template.evaluate(SampleViewModel.create(sampleConfig));
     }
 }
