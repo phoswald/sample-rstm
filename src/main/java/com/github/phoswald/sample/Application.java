@@ -3,8 +3,10 @@ package com.github.phoswald.sample;
 import static com.github.phoswald.rstm.http.codec.json.JsonCodec.json;
 import static com.github.phoswald.rstm.http.codec.xml.XmlCodec.xml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.combine;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.delete;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.get;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.post;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.put;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.resources;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.route;
 
@@ -18,6 +20,9 @@ import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.sample.sample.EchoRequest;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
+import com.github.phoswald.sample.task.TaskController;
+import com.github.phoswald.sample.task.TaskEntity;
+import com.github.phoswald.sample.task.TaskResource;
 
 public class Application {
 
@@ -26,15 +31,21 @@ public class Application {
     private final int port;
     private final SampleResource sampleResource;
     private final SampleController sampleController;
+    private final TaskResource taskResource;
+    private final TaskController taskController;
     private HttpServer httpServer;
 
     public Application( //
             ConfigProvider config, //
             SampleResource sampleResource, //
-            SampleController sampleController) {
+            SampleController sampleController, //
+            TaskResource taskResource, //
+            TaskController taskController) {
         this.port = Integer.parseInt(config.getConfigProperty("app.http.port").orElse("8080"));
         this.sampleResource = sampleResource;
         this.sampleController = sampleController;
+        this.taskResource = taskResource;
+        this.taskController = taskController;
     }
 
     public static void main(String[] args) {
@@ -60,7 +71,35 @@ public class Application {
                                 post(request -> HttpResponse.body(200, json(), //
                                         sampleResource.postEcho(request.body(json(), EchoRequest.class))))), //
                         route("/app/pages/sample", //
-                                get(request -> HttpResponse.html(200, sampleController.getSamplePage()))) //
+                                get(request -> HttpResponse.html(200, sampleController.getSamplePage()))), //
+
+                        route("/app/rest/tasks", //
+                                get(request -> HttpResponse.body(200, json(), //
+                                        taskResource.getTasks())), //
+                                post(request -> HttpResponse.body(200, json(), //
+                                        taskResource.postTasks(request.body(json(), TaskEntity.class))))), //
+                        route("/app/rest/tasks/{id}", //
+                                get(request -> HttpResponse.body(200, json(), //
+                                        taskResource.getTask(request.pathParam("id").get()))), //
+                                put(request -> HttpResponse.body(200, json(), //
+                                        taskResource.putTask(request.pathParam("id").get(), request.body(json(), TaskEntity.class)))), //
+                                delete(request -> HttpResponse.text(200, //
+                                        taskResource.deleteTask(request.pathParam("id").get())))), //
+                        route("/app/pages/tasks", //
+                                get(request -> HttpResponse.html(200, taskController.getTasksPage())), //
+                                post(request -> HttpResponse.html(200, taskController.postTasksPage( //
+                                        request.formParam("title").get(), //
+                                        request.formParam("description").orElse(null))))), //
+                        route("/app/pages/tasks/{id}", //
+                                get(request -> HttpResponse.html(200, taskController.getTaskPage( //
+                                        request.pathParam("id").get(), //
+                                        request.queryParam("action").orElse(null)))), //
+                                post(request -> HttpResponse.html(200, taskController.postTaskPage( //
+                                        request.pathParam("id").get(), //
+                                        request.formParam("action").get(), //
+                                        request.formParam("title").get(), //
+                                        request.formParam("description").get(), //
+                                        request.formParam("done").orElse(null)).toString(/* TODO (http) handle redirect */)))) //
                 )) //
                 .build());
     }
