@@ -1,6 +1,6 @@
 # sample-rstm
 
-Experiments with the RSTM (Really Simple &amp; Totally Minimalistic) Framework and Docker, featuring:
+Experiments with the RSTM (Really Simple & Totally Minimalistic) Framework and Docker, featuring:
 
 - Static web content
 - Dynamic web content
@@ -14,7 +14,8 @@ $ export APP_SAMPLE_CONFIG=ValueFromShell
 $ java \
   -Dapp.http.port=8080 \
   -Dapp.jdbc.url=jdbc:h2:./databases/task-db \
-  -cp 'target/*:target/lib/*' com.github.phoswald.sample.Application
+  -cp 'target/sample-rstm-0.1.0-SNAPSHOT/lib/*' \
+  com.github.phoswald.sample.Application
 ~~~
 
 ## Run with Docker

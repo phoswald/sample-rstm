@@ -82,22 +82,22 @@
         <version>2.22.2</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
         <version>3.5.0</version>
         <executions>
           <execution>
-            <id>copy-libs</id>
             <phase>package</phase>
             <goals>
-              <goal>copy-dependencies</goal>
+              <goal>single</goal>
             </goals>
-            <configuration>
-              <includeScope>runtime</includeScope>
-              <outputDirectory>target/lib</outputDirectory>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <appendAssemblyId>false</appendAssemblyId>
+          <descriptors>
+            <descriptor>src/assembly/dist.xml</descriptor>
+          </descriptors>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -110,10 +110,9 @@
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <version>0.41.0</version>
+            <version>0.42.0</version>
             <executions>
               <execution>
-                <id>docker-build</id>
                 <phase>package</phase>
                 <goals>
                   <goal>build</goal>
@@ -128,11 +127,7 @@
                   <build>
                     <dockerFile>Dockerfile</dockerFile>
                     <assembly>
-                      <inline>
-                        <dependencySets>
-                          <dependencySet/>
-                        </dependencySets>
-                      </inline>
+                      <descriptor>${project.basedir}/src/assembly/dist.xml</descriptor>
                     </assembly>
                   </build>
                 </image>
