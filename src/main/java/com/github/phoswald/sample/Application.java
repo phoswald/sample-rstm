@@ -10,13 +10,19 @@ import static com.github.phoswald.rstm.http.server.HttpServerConfig.put;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.resources;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.route;
 
+import java.nio.file.Path;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
+import com.github.phoswald.rstm.http.HttpCodec;
+import com.github.phoswald.rstm.http.HttpRequest;
 import com.github.phoswald.rstm.http.HttpResponse;
+import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
+import com.github.phoswald.rstm.http.server.ThrowingFunction;
 import com.github.phoswald.sample.sample.EchoRequest;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
@@ -72,19 +78,13 @@ public class Application {
                                         sampleResource.postEcho(request.body(json(), EchoRequest.class))))), //
                         route("/app/pages/sample", //
                                 get(request -> HttpResponse.html(200, sampleController.getSamplePage()))), //
-
                         route("/app/rest/tasks", //
-                                get(request -> HttpResponse.body(200, json(), //
-                                        taskResource.getTasks())), //
-                                post(request -> HttpResponse.body(200, json(), //
-                                        taskResource.postTasks(request.body(json(), TaskEntity.class))))), //
+                                getX(json(), request -> taskResource.getTasks()), //
+                                postX(json(), TaskEntity.class, (request, requestBody) -> taskResource.postTasks(requestBody))), //
                         route("/app/rest/tasks/{id}", //
-                                get(request -> HttpResponse.body(200, json(), //
-                                        taskResource.getTask(request.pathParam("id").get()))), //
-                                put(request -> HttpResponse.body(200, json(), //
-                                        taskResource.putTask(request.pathParam("id").get(), request.body(json(), TaskEntity.class)))), //
-                                delete(request -> HttpResponse.text(200, //
-                                        taskResource.deleteTask(request.pathParam("id").get())))), //
+                                getX(json(), request -> taskResource.getTask(request.pathParam("id").get())), //
+                                putX(json(), TaskEntity.class, (request, requestBody) -> taskResource.putTask(request.pathParam("id").get(), requestBody)), //
+                                delete(request -> HttpResponse.text(200, taskResource.deleteTask(request.pathParam("id").get())))), //
                         route("/app/pages/tasks", //
                                 get(request -> HttpResponse.html(200, taskController.getTasksPage())), //
                                 post(request -> HttpResponse.html(200, taskController.postTasksPage( //
@@ -94,17 +94,58 @@ public class Application {
                                 get(request -> HttpResponse.html(200, taskController.getTaskPage( //
                                         request.pathParam("id").get(), //
                                         request.queryParam("action").orElse(null)))), //
-                                post(request -> HttpResponse.html(200, taskController.postTaskPage( //
+                                postH(request -> taskController.postTaskPage( //
                                         request.pathParam("id").get(), //
                                         request.formParam("action").get(), //
                                         request.formParam("title").get(), //
                                         request.formParam("description").get(), //
-                                        request.formParam("done").orElse(null)).toString(/* TODO (http) handle redirect */)))) //
+                                        request.formParam("done").orElse(null)))) //
                 )) //
                 .build());
     }
 
+    // TODO cleanup CRUD operation and HTML page handling (codecs, 404, 302)
+
+    static <T> HttpFilter getX(HttpCodec codec, ThrowingFunction<HttpRequest, T> handler) {
+        return get(request -> {
+            T responseObj = handler.invoke(request);
+            return responseObj == null ? HttpResponse.empty(404) : HttpResponse.body(200, codec, responseObj);
+        });
+    }
+
+    static <A, B> HttpFilter postX(HttpCodec codec, Class<A> clazzA, ThrowingBiFunction<HttpRequest, A, B> handler) {
+        return post(request -> {
+            A requestObj = request.body(codec, clazzA);
+            B responseObj = handler.invoke(request, requestObj);
+            return responseObj == null ? HttpResponse.empty(404) : HttpResponse.body(200, codec, responseObj);
+        });
+    }
+
+    static <A, B> HttpFilter putX(HttpCodec codec, Class<A> clazzA, ThrowingBiFunction<HttpRequest, A, B> handler) {
+        return put(request -> {
+            A requestObj = request.body(codec, clazzA);
+            B responseObj = handler.invoke(request, requestObj);
+            return responseObj == null ? HttpResponse.empty(404) : HttpResponse.body(200, codec, responseObj);
+        });
+    }
+
+    static HttpFilter postH(ThrowingFunction<HttpRequest, Object> handler) {
+        return post(request -> {
+           Object response = handler.invoke(request);
+           if(response instanceof Path location) {
+               return HttpResponse.redirect(302, location.toString());
+           } else {
+               return HttpResponse.html(200, response.toString());
+           }
+        });
+    }
+
     void stop() {
         httpServer.close();
+    }
+
+    public interface ThrowingBiFunction<A, B, C> {
+
+        public C invoke(A request1, B request2) throws Exception;
     }
 }
