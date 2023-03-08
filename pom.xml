@@ -113,7 +113,6 @@
           </execution>
         </executions>
         <configuration>
-          <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
             <descriptor>src/assembly/dist.xml</descriptor>
           </descriptors>

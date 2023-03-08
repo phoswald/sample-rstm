@@ -13,9 +13,9 @@ Experiments with the RSTM (Really Simple & Totally Minimalistic) Framework and D
 $ mvn clean verify
 $ export APP_SAMPLE_CONFIG=ValueFromShell
 $ java \
+  -cp $(echo target/sample-rstm-*-dist/lib)/"*" \
   -Dapp.http.port=8080 \
   -Dapp.jdbc.url=jdbc:h2:./databases/task-db \
-  -cp 'target/sample-rstm-0.1.0-SNAPSHOT/lib/*' \
   com.github.phoswald.sample.Application
 ~~~
 
