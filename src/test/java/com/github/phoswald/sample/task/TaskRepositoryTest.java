@@ -14,7 +14,7 @@ class TaskRepositoryTest {
 
     @Test
     void testCrud() {
-        try(TaskRepository testee = new TaskRepository(module.getEntityManagerFactory())) {
+        try(TaskRepository testee = new TaskRepository(module.getConnection())) {
             assertEquals(0, testee.selectAllTasks().size());
 
             TaskEntity entity = new TaskEntity();
@@ -24,7 +24,7 @@ class TaskRepositoryTest {
             testee.createTask(entity);
         }
 
-        try(TaskRepository testee = new TaskRepository(module.getEntityManagerFactory())) {
+        try(TaskRepository testee = new TaskRepository(module.getConnection())) {
             List<TaskEntity> entites = testee.selectAllTasks();
 
             assertEquals(1, entites.size());

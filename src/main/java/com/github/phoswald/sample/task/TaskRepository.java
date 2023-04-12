@@ -1,57 +1,141 @@
 package com.github.phoswald.sample.task;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.TypedQuery;
 
 public class TaskRepository implements AutoCloseable {
 
-    private final EntityManager em;
-    private boolean rollback;
+    private final Connection conn;
 
-    public TaskRepository(EntityManagerFactory emf) {
-        em = emf.createEntityManager();
-        em.getTransaction().begin();
+    public TaskRepository(Connection conn) {
+        this.conn = conn;
     }
 
     @Override
     public void close() {
         try {
-            if(rollback) {
-                em.getTransaction().rollback();
-            } else {
-                em.getTransaction().commit();
-            }
-        } finally {
-            em.close();
+            conn.close();
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    public void setRollbackOnly() {
-        rollback = true;
-    }
-
     public List<TaskEntity> selectAllTasks() {
-        TypedQuery<TaskEntity> query = em.createNamedQuery(TaskEntity.SELECT_ALL, TaskEntity.class);
-        query.setMaxResults(100);
-        return query.getResultList();
+        try {
+            PreparedStatement stmt = conn.prepareStatement("""
+                    SELECT TASK_ID, USER_ID, TIMESTAMP, TITLE, DESCRIPTION, DONE
+                    FROM TASK
+                    ORDER BY TIMESTAMP DESC
+                    """);
+            stmt.setMaxRows(1000);
+            ResultSet resultSet = stmt.executeQuery();
+            List<TaskEntity> resultList = new ArrayList<>();
+            while (resultSet.next()) {
+                TaskEntity resultEntity = new TaskEntity();
+                resultEntity.setTaskId(resultSet.getString("TASK_ID"));
+                resultEntity.setUserId(resultSet.getString("USER_ID"));
+                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("TIMESTAMP")));
+                resultEntity.setTitle(resultSet.getString("TITLE"));
+                resultEntity.setDescription(resultSet.getString("DESCRIPTION"));
+                resultEntity.setDone(resultSet.getBoolean("DONE"));
+                resultList.add(resultEntity);
+            }
+            resultSet.close();
+            return resultList;
+        } catch (SQLException e) {
+            throw new SqlException(e);
+        }
     }
 
     public TaskEntity selectTaskById(String taskId) {
-        return em.find(TaskEntity.class, taskId);
+        try {
+            PreparedStatement stmt = conn.prepareStatement("""
+                    SELECT TASK_ID, USER_ID, TIMESTAMP, TITLE, DESCRIPTION, DONE
+                    FROM TASK
+                    WHERE TASK_ID = ?
+                    """);
+            stmt.setString(1, taskId);
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                TaskEntity resultEntity = new TaskEntity();
+                resultEntity.setTaskId(resultSet.getString("TASK_ID"));
+                resultEntity.setUserId(resultSet.getString("USER_ID"));
+                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("TIMESTAMP")));
+                resultEntity.setTitle(resultSet.getString("TITLE"));
+                resultEntity.setDescription(resultSet.getString("DESCRIPTION"));
+                resultEntity.setDone(resultSet.getBoolean("DONE"));
+                resultSet.close();
+                return resultEntity;
+            } else {
+                resultSet.close();
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new SqlException(e);
+        }
     }
 
     public void createTask(TaskEntity entity) {
-        em.persist(entity);
+        try {
+            PreparedStatement stmt = conn.prepareStatement("""
+                    INSERT INTO TASK (TASK_ID, USER_ID, TIMESTAMP, TITLE, DESCRIPTION, DONE)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """);
+            stmt.setString(1, entity.getTaskId());
+            stmt.setString(2, entity.getUserId());
+            stmt.setTimestamp(3, convertTimestamp(entity.getTimestamp()));
+            stmt.setString(4, entity.getTitle());
+            stmt.setString(5, entity.getDescription());
+            stmt.setBoolean(6, entity.isDone());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new SqlException(e);
+        }
     }
 
     public void deleteTask(TaskEntity entity) {
-        em.remove(entity);
+        try {
+            PreparedStatement stmt = conn.prepareStatement("""
+                    DELETE TASK
+                    WHERE TASK_ID = ?
+                    """);
+            stmt.setString(1, entity.getTaskId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new SqlException(e);
+        }
     }
 
-    public void updateChanges() {
-        em.flush();
+    public void updateTask(TaskEntity entity) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement("""
+                    UPDATE TASK
+                    SET USER_ID = ?, TIMESTAMP = ?, TITLE = ?, DESCRIPTION = ?, DONE = ?
+                    WHERE TASK_ID = ?
+                    """);
+            stmt.setString(6, entity.getTaskId());
+            stmt.setString(1, entity.getUserId());
+            stmt.setTimestamp(2, convertTimestamp(entity.getTimestamp()));
+            stmt.setString(3, entity.getTitle());
+            stmt.setString(4, entity.getDescription());
+            stmt.setBoolean(5, entity.isDone());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new SqlException(e);
+        }
+    }
+
+    private Timestamp convertTimestamp(Instant t) {
+        return t == null ? null : new Timestamp(t.toEpochMilli());
+    }
+
+    private Instant convertTimestamp(Timestamp t) {
+        return t == null ? null : Instant.ofEpochMilli(t.getTime());
     }
 }

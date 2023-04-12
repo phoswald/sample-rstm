@@ -32,7 +32,6 @@ public class TaskViewModel {
     }
 
     private String format(Instant instant) {
-
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         return dateTime.format(DateTimeFormatter.ISO_DATE) + " " + dateTime.format(DateTimeFormatter.ISO_TIME);
     }
