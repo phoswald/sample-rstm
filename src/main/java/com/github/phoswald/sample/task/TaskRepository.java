@@ -102,7 +102,7 @@ public class TaskRepository implements AutoCloseable {
     public void deleteTask(TaskEntity entity) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
-                    DELETE TASK
+                    DELETE FROM TASK
                     WHERE TASK_ID = ?
                     """);
             stmt.setString(1, entity.getTaskId());

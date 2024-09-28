@@ -5,7 +5,7 @@ Experiments with the RSTM (Really Simple & Totally Minimalistic) Framework and D
 - Static web content
 - Dynamic web content
 - REST endpoints
-- H2 database using JPA and Hibernate
+- PostgreSQL or H2 database using JDBC
 
 ## Run Standalone
 
@@ -17,6 +17,13 @@ $ java \
   -Dapp.http.port=8080 \
   -Dapp.jdbc.url=jdbc:h2:./databases/task-db \
   com.github.phoswald.sample.Application
+$ java \
+  -cp $(echo target/sample-rstm-*-dist/lib)/"*" \
+  -Dapp.http.port=8080 \
+  -Dapp.jdbc.url=jdbc:postgresql://localhost:5432/mydb \
+  -Dapp.jdbc.username=myuser \
+  -Dapp.jdbc.password=mypassword \
+  com.github.phoswald.sample.Application
 ~~~
 
 ## Run with Docker
@@ -27,6 +34,14 @@ $ docker run -it --name sample-rstm --rm \
   -p 8080:8080 \
   -e APP_SAMPLE_CONFIG=ValueFromDockerRun \
   -e APP_JDBC_URL=jdbc:h2:/databases/task-db \
+  -v ./databases/:/databases \
+  sample-rstm:0.1.0-SNAPSHOT
+$ docker run -it --name sample-rstm --rm \
+  -p 8080:8080 \
+  -e APP_SAMPLE_CONFIG=ValueFromDockerRun \
+  -e APP_JDBC_URL=jdbc:postgresql://surin.home:5432/mydb \
+  -e APP_JDBC_USERNAME=myuser \
+  -e APP_JDBC_PASSWORD=mypassword \
   -v ./databases/:/databases \
   sample-rstm:0.1.0-SNAPSHOT
 ~~~
