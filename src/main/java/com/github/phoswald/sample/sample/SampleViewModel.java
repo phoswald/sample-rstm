@@ -4,23 +4,35 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import com.github.phoswald.rstm.security.Principal;
 
 public record SampleViewModel( //
         String now, //
         String sampleConfig, //
-        Map<String,String> env, //
-        Map<Object,Object> props //
+        String username, //
+        Map<String, ?> env, //
+        Map<Object, ?> props //
 ) {
 
-    public static SampleViewModel create(String sampleConfig) {
+    public static SampleViewModel create(String sampleConfig, Principal principal) {
         return new SampleViewModel( //
                 ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME), //
                 sampleConfig, //
+                principal.name(), //
                 toPairs(System.getenv()), //
                 toPairs(System.getProperties()));
     }
 
-    private static <K,V> Map<K, V> toPairs(Map<K, V> map) {
-        return new TreeMap<>(map);
+    private static <K, V> Map<K, ?> toPairs(Map<K, V> map) {
+        return new TreeMap<K, Object>(map.entrySet().stream() //
+                .map(e -> isSecret(e) ? Map.entry(e.getKey(), "???") : e) //
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+
+    private static boolean isSecret(Map.Entry<?, ?> e) {
+        String key = e.getKey().toString().toLowerCase();
+        return key.contains("password") || key.contains("secret");
     }
 }

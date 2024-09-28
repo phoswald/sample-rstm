@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -15,8 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
+import com.github.phoswald.rstm.security.IdentityProvider;
+import com.github.phoswald.rstm.security.SimpleIdentityProvider;
 import com.github.phoswald.sample.task.TaskEntity;
-
+ 
 class ApplicationTest {
 
     private static final ApplicationModule module = new TestModule();
@@ -89,6 +92,8 @@ class ApplicationTest {
 
     @Test
     void getSamplePage() {
+        given().
+            auth().preemptive().basic("username", "password").
         when().
             get("/app/pages/sample").
         then().
@@ -96,8 +101,8 @@ class ApplicationTest {
             contentType("text/html").
             body(startsWith("<!doctype html>"),
                 containsString("<title>Sample Page</title>"),
-                containsString("<span>Hello, World!</span>"), // #{greeting}
-                containsString("<td>Test Config Value</td>")); // ${model.sampleConfig}
+                containsString("<span>Hello</span>, <span>username</span>!"), // #greeting, username
+                containsString("<td>Test Config Value</td>")); // sampleConfig
     }
 
     @Test
@@ -180,6 +185,11 @@ class ApplicationTest {
                     };
                 }
             };
+        }
+        @Override
+        public IdentityProvider getIdentityProvider() {
+            return new SimpleIdentityProvider() //
+                    .add("username", "password".toCharArray(), List.of("user"));
         }
     }
 }

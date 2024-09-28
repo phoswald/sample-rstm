@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TaskViewModel {
 
@@ -28,7 +27,7 @@ public class TaskViewModel {
     }
 
     public static TaskListViewModel ofEntityList(List<TaskEntity> entities) {
-        return new TaskListViewModel(entities.stream().map(TaskViewModel::ofEntity).collect(Collectors.toList()));
+        return new TaskListViewModel(entities.stream().map(TaskViewModel::ofEntity).toList());
     }
 
     private String format(Instant instant) {

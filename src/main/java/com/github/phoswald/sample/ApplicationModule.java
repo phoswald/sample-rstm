@@ -6,17 +6,20 @@ import java.sql.SQLException;
 import java.util.function.Supplier;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
+import com.github.phoswald.rstm.security.IdentityProvider;
+import com.github.phoswald.rstm.security.JdbcIdentityProvider;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.TaskController;
 import com.github.phoswald.sample.task.TaskRepository;
 import com.github.phoswald.sample.task.TaskResource;
-
+ 
 public class ApplicationModule {
 
     public Application getApplication() {
         return new Application(getConfigProvider(), //
-                getSampleResource(), getSampleController(), getTaskResource(), getTaskController());
+                getSampleResource(), getSampleController(), getTaskResource(), getTaskController(), //
+                getIdentityProvider());
     }
 
     public ConfigProvider getConfigProvider() {
@@ -41,6 +44,10 @@ public class ApplicationModule {
 
     public Supplier<TaskRepository> getTaskRepositoryFactory() {
         return () -> new TaskRepository(getConnection());
+    }
+    
+    public IdentityProvider getIdentityProvider() {
+        return new JdbcIdentityProvider(() -> getConnection());
     }
 
     public Connection getConnection() {
