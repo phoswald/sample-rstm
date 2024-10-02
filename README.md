@@ -5,7 +5,7 @@ Experiments with the RSTM (Really Simple & Totally Minimalistic) Framework and D
 - Static web content
 - Dynamic web content
 - REST endpoints
-- PostgreSQL or H2 database using JDBC
+- Postgres or H2 database using JDBC
 
 ## Run Standalone
 
@@ -70,17 +70,11 @@ $ curl 'http://localhost:8080/app/rest/tasks/5b89f266-c566-4d1f-8545-451bc443cf2
 $ curl 'http://localhost:8080/app/rest/tasks/5b89f266-c566-4d1f-8545-451bc443cf26' -i -X DELETE
 ~~~
 
-## Security
+## Database:
 
-~~~
-CREATE TABLE user_ (
-  username_ character varying(255) NOT NULL,
-  password_ character varying(255) NULL,
-  roles_    character varying(255) NULL
-);
+See [SQL DDL](src/main/resources/schema.postgresql.sql) for Postgres.
 
-ALTER TABLE user_ ADD CONSTRAINT user_pk_ PRIMARY KEY (username_);
-~~~
+Create passwords for form-based authentication (table `user_`):
 
 ~~~
 $ java -cp $(echo target/sample-rstm-*-dist/lib)/"*" \
