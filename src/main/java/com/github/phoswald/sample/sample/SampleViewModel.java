@@ -21,11 +21,11 @@ public record SampleViewModel( //
                 ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME), //
                 sampleConfig, //
                 principal.name(), //
-                toPairs(System.getenv()), //
-                toPairs(System.getProperties()));
+                sortAndMaskSecrets(System.getenv()), //
+                sortAndMaskSecrets(System.getProperties()));
     }
 
-    private static <K, V> Map<K, ?> toPairs(Map<K, V> map) {
+    private static <K, V> Map<K, ?> sortAndMaskSecrets(Map<K, V> map) {
         return new TreeMap<K, Object>(map.entrySet().stream() //
                 .map(e -> isSecret(e) ? Map.entry(e.getKey(), "???") : e) //
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));

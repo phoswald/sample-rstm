@@ -72,22 +72,24 @@ public class Application {
                                 resources("/html/")), //
                         route("/login", login()), //
                         route("/app/rest/sample/time", //
-                                get(request -> HttpResponse.text(200, sampleResource.getTime()))), //
+                                get(request -> HttpResponse.text(200, sampleResource.getTime() + "\n"))), //
                         route("/app/rest/sample/config", //
-                                get(request -> HttpResponse.text(200, sampleResource.getConfig()))), //
+                                get(request -> HttpResponse.text(200, sampleResource.getConfig() + "\n"))), //
                         route("/app/rest/sample/echo-xml", //
                                 post(request -> HttpResponse.body(200, xml(), //
                                         sampleResource.postEcho(request.body(xml(), EchoRequest.class))))), //
                         route("/app/rest/sample/echo-json", //
                                 post(request -> HttpResponse.body(200, json(), //
                                         sampleResource.postEcho(request.body(json(), EchoRequest.class))))), //
+                        route("/app/rest/sample/me", auth("user", //
+                                get(request -> HttpResponse.text(200, request.principal().name() + "\n")))), //
                         route("/app/rest/tasks", //
                                 getRest(json(), request -> taskResource.getTasks()), //
                                 postRest(json(), TaskEntity.class, (request, requestBody) -> taskResource.postTasks(requestBody))), //
                         route("/app/rest/tasks/{id}", //
                                 getRest(json(), request -> taskResource.getTask(request.pathParam("id").get())), //
                                 putRest(json(), TaskEntity.class, (request, requestBody) -> taskResource.putTask(request.pathParam("id").get(), requestBody)), //
-                                delete(request -> HttpResponse.text(200, taskResource.deleteTask(request.pathParam("id").get())))), //
+                                delete(request -> HttpResponse.text(200, taskResource.deleteTask(request.pathParam("id").get()) + "\n"))), //
                         route("/app/pages", auth("user", //
                                 route("/sample", //
                                         get(request -> HttpResponse.html(200, sampleController.getSamplePage(request.principal()))))), //

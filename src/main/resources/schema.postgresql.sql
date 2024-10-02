@@ -1,0 +1,20 @@
+CREATE TABLE task_ (
+  task_id_     CHARACTER VARYING(255) NOT NULL,
+  user_id_     CHARACTER VARYING(255) NOT NULL,
+  timestamp_   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+  title_       CHARACTER VARYING(255) NOT NULL,
+  description_ CHARACTER VARYING(255) NULL,
+  done_        BOOLEAN NULL
+);
+
+ALTER TABLE task_ ADD CONSTRAINT task_pk_ PRIMARY KEY (task_id_);
+
+##
+
+CREATE TABLE user_ (
+  username_ CHARACTER VARYING(255) NOT NULL,
+  password_ CHARACTER VARYING(255) NULL,
+  roles_    CHARACTER VARYING(255) NULL
+);
+
+ALTER TABLE user_ ADD CONSTRAINT user_pk_ PRIMARY KEY (username_);

@@ -54,7 +54,7 @@ public class ApplicationModule {
         try {
             var config = getConfigProvider();
             String url = config.getConfigProperty("app.jdbc.url").orElse("jdbc:h2:mem:test " + hashCode()
-                    + " ;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'src/main/resources/schema.sql'");
+                    + " ;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'src/main/resources/schema.h2.sql'");
             String username = config.getConfigProperty("app.jdbc.username").orElse("sa");
             String password = config.getConfigProperty("app.jdbc.password").orElse("sa");
             return DriverManager.getConnection(url, username, password);

@@ -29,21 +29,21 @@ public class TaskRepository implements AutoCloseable {
     public List<TaskEntity> selectAllTasks() {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
-                    SELECT TASK_ID, USER_ID, TIMESTAMP, TITLE, DESCRIPTION, DONE
-                    FROM TASK
-                    ORDER BY TIMESTAMP DESC
+                    SELECT task_id_, user_id_, timestamp_, title_, description_, done_
+                    FROM task_
+                    ORDER BY timestamp_ DESC
                     """);
             stmt.setMaxRows(1000);
             ResultSet resultSet = stmt.executeQuery();
             List<TaskEntity> resultList = new ArrayList<>();
             while (resultSet.next()) {
                 TaskEntity resultEntity = new TaskEntity();
-                resultEntity.setTaskId(resultSet.getString("TASK_ID"));
-                resultEntity.setUserId(resultSet.getString("USER_ID"));
-                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("TIMESTAMP")));
-                resultEntity.setTitle(resultSet.getString("TITLE"));
-                resultEntity.setDescription(resultSet.getString("DESCRIPTION"));
-                resultEntity.setDone(resultSet.getBoolean("DONE"));
+                resultEntity.setTaskId(resultSet.getString("task_id_"));
+                resultEntity.setUserId(resultSet.getString("user_id_"));
+                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")));
+                resultEntity.setTitle(resultSet.getString("title_"));
+                resultEntity.setDescription(resultSet.getString("description_"));
+                resultEntity.setDone(resultSet.getBoolean("done_"));
                 resultList.add(resultEntity);
             }
             resultSet.close();
@@ -56,20 +56,20 @@ public class TaskRepository implements AutoCloseable {
     public TaskEntity selectTaskById(String taskId) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
-                    SELECT TASK_ID, USER_ID, TIMESTAMP, TITLE, DESCRIPTION, DONE
-                    FROM TASK
-                    WHERE TASK_ID = ?
+                    SELECT task_id_, user_id_, timestamp_, title_, description_, done_
+                    FROM task_
+                    WHERE task_id_ = ?
                     """);
             stmt.setString(1, taskId);
             ResultSet resultSet = stmt.executeQuery();
             if (resultSet.next()) {
                 TaskEntity resultEntity = new TaskEntity();
-                resultEntity.setTaskId(resultSet.getString("TASK_ID"));
-                resultEntity.setUserId(resultSet.getString("USER_ID"));
-                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("TIMESTAMP")));
-                resultEntity.setTitle(resultSet.getString("TITLE"));
-                resultEntity.setDescription(resultSet.getString("DESCRIPTION"));
-                resultEntity.setDone(resultSet.getBoolean("DONE"));
+                resultEntity.setTaskId(resultSet.getString("task_id_"));
+                resultEntity.setUserId(resultSet.getString("user_id_"));
+                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")));
+                resultEntity.setTitle(resultSet.getString("title_"));
+                resultEntity.setDescription(resultSet.getString("description_"));
+                resultEntity.setDone(resultSet.getBoolean("done_"));
                 resultSet.close();
                 return resultEntity;
             } else {
@@ -84,7 +84,7 @@ public class TaskRepository implements AutoCloseable {
     public void createTask(TaskEntity entity) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
-                    INSERT INTO TASK (TASK_ID, USER_ID, TIMESTAMP, TITLE, DESCRIPTION, DONE)
+                    INSERT INTO task_ (task_id_, user_id_, timestamp_, title_, description_, done_)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """);
             stmt.setString(1, entity.getTaskId());
@@ -102,8 +102,8 @@ public class TaskRepository implements AutoCloseable {
     public void deleteTask(TaskEntity entity) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
-                    DELETE FROM TASK
-                    WHERE TASK_ID = ?
+                    DELETE FROM task_
+                    WHERE task_id_ = ?
                     """);
             stmt.setString(1, entity.getTaskId());
             stmt.executeUpdate();
@@ -115,9 +115,9 @@ public class TaskRepository implements AutoCloseable {
     public void updateTask(TaskEntity entity) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
-                    UPDATE TASK
-                    SET USER_ID = ?, TIMESTAMP = ?, TITLE = ?, DESCRIPTION = ?, DONE = ?
-                    WHERE TASK_ID = ?
+                    UPDATE task_
+                    SET user_id_ = ?, timestamp_ = ?, title_ = ?, description_ = ?, done_ = ?
+                    WHERE task_id_ = ?
                     """);
             stmt.setString(6, entity.getTaskId());
             stmt.setString(1, entity.getUserId());

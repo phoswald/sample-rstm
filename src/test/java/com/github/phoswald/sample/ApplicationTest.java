@@ -52,7 +52,7 @@ class ApplicationTest {
             get("/app/rest/sample/time").
         then().
             statusCode(200).
-            body(matchesRegex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]+(\\+|\\-)[0-9]{2}:[0-9]{2}\\[.+\\]"));
+            body(matchesRegex("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]+(\\+|\\-)[0-9]{2}:[0-9]{2}\\[.+\\]\\n"));
     }
 
     @Test
@@ -61,7 +61,7 @@ class ApplicationTest {
             get("/app/rest/sample/config").
         then().
             statusCode(200).
-            body(equalTo("Test Config Value"));
+            body(equalTo("Test Config Value\n"));
     }
 
     @Test
@@ -157,7 +157,7 @@ class ApplicationTest {
             delete("/app/rest/tasks/" + taskId.get()).
         then().
             statusCode(200).
-            body(equalTo(""));
+            body(equalTo("\n"));
 
         when().
             get("/app/rest/tasks").
