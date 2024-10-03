@@ -23,6 +23,8 @@ $ java \
   -Dapp.jdbc.url=jdbc:postgresql://localhost:5432/mydb \
   -Dapp.jdbc.username=myuser \
   -Dapp.jdbc.password=mypassword \
+  -Dapp.jwt.issuer=http://localhost \
+  -Dapp.jwt.secret=mysecretforhmac \
   com.github.phoswald.sample.Application
 ~~~
 
@@ -42,6 +44,8 @@ $ docker run -it --name sample-rstm --rm \
   -e APP_JDBC_URL=jdbc:postgresql://surin.home:5432/mydb \
   -e APP_JDBC_USERNAME=myuser \
   -e APP_JDBC_PASSWORD=mypassword \
+  -e APP_JWT_ISSUER=http://localhost \
+  -e APP_JWT_SECRET=mysecretforhmac \
   sample-rstm:0.1.0-SNAPSHOT
 ~~~
 
@@ -77,5 +81,5 @@ Create passwords for form-based authentication (table `user_`):
 
 ~~~
 $ java -cp $(echo target/sample-rstm-*-dist/lib)/"*" \
-  com.github.phoswald.rstm.security.PasswordUtility
+  com.github.phoswald.rstm.security.jdbc.PasswordUtility
 ~~~
