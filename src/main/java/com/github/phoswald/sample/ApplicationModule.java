@@ -54,7 +54,7 @@ public class ApplicationModule {
         return new JdbcIdentityProvider(getTokenProvider(), this::getConnection);
     }
     
-    public TokenProvider getTokenProvider() {
+    private TokenProvider getTokenProvider() {
         var config = getConfigProvider();
         Optional<String> issuer = config.getConfigProperty("app.jwt.issuer");
         Optional<String> secret = config.getConfigProperty("app.jwt.secret");

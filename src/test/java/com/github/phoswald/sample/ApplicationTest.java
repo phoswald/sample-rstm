@@ -157,7 +157,7 @@ class ApplicationTest {
             delete("/app/rest/tasks/" + taskId.get()).
         then().
             statusCode(200).
-            body(equalTo("\n"));
+            body(equalTo(""));
 
         when().
             get("/app/rest/tasks").

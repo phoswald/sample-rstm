@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
 import com.github.phoswald.rstm.http.HttpResponse;
+import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.rstm.security.IdentityProvider;
@@ -67,50 +68,52 @@ public class Application {
         logger.info("sample-rstm is starting, port=" + port);
         httpServer = new HttpServer(HttpServerConfig.builder() //
                 .httpPort(port) //
-                .filter(combine( //
-                        route("/", //
-                                resources("/html/")), //
-                        route("/login", login()), //
-                        route("/app/rest/sample/time", //
-                                get(request -> HttpResponse.text(200, sampleResource.getTime() + "\n"))), //
-                        route("/app/rest/sample/config", //
-                                get(request -> HttpResponse.text(200, sampleResource.getConfig() + "\n"))), //
-                        route("/app/rest/sample/echo-xml", //
-                                post(request -> HttpResponse.body(200, xml(), //
-                                        sampleResource.postEcho(request.body(xml(), EchoRequest.class))))), //
-                        route("/app/rest/sample/echo-json", //
-                                post(request -> HttpResponse.body(200, json(), //
-                                        sampleResource.postEcho(request.body(json(), EchoRequest.class))))), //
-                        route("/app/rest/sample/me", auth("user", //
-                                get(request -> HttpResponse.text(200, request.principal().name() + "\n")))), //
-                        route("/app/rest/tasks", //
-                                getRest(json(), request -> taskResource.getTasks()), //
-                                postRest(json(), TaskEntity.class, (request, requestBody) -> taskResource.postTasks(requestBody))), //
-                        route("/app/rest/tasks/{id}", //
-                                getRest(json(), request -> taskResource.getTask(request.pathParam("id").get())), //
-                                putRest(json(), TaskEntity.class, (request, requestBody) -> taskResource.putTask(request.pathParam("id").get(), requestBody)), //
-                                delete(request -> HttpResponse.text(200, taskResource.deleteTask(request.pathParam("id").get()) + "\n"))), //
-                        route("/app/pages", auth("user", //
-                                route("/sample", //
-                                        get(request -> HttpResponse.html(200, sampleController.getSamplePage(request.principal()))))), //
-                                route("/tasks", //
-                                        getHtml(request -> taskController.getTasksPage()), //
-                                        postHtml(request -> taskController.postTasksPage( //
-                                                request.formParam("title").get(), //
-                                                request.formParam("description").orElse(null)))), //
-                                route("/tasks/{id}", //
-                                        getHtml(request -> taskController.getTaskPage( //
-                                                request.pathParam("id").get(), //
-                                                request.queryParam("action").orElse(null))), //
-                                        postHtml(request -> taskController.postTaskPage( //
-                                                request.pathParam("id").get(), //
-                                                request.formParam("action").get(), //
-                                                request.formParam("title").get(), //
-                                                request.formParam("description").get(), //
-                                                request.formParam("done").orElse(null))))) //
-                )) //
+                .filter(getRoutes()) //
                 .identityProvider(identityProvider) //
                 .build());
+    }
+    
+    private HttpFilter getRoutes() {
+        return combine( //
+                route("/", //
+                        resources("/html/")), //
+                route("/login", login()), //
+                route("/app/rest/sample/time", //
+                        get(req -> HttpResponse.text(200, sampleResource.getTime()))), //
+                route("/app/rest/sample/config", //
+                        get(req -> HttpResponse.text(200, sampleResource.getConfig()))), //
+                route("/app/rest/sample/echo-xml", //
+                        post(req -> HttpResponse.body(200, xml(), sampleResource.postEcho(req.body(xml(), EchoRequest.class))))), //
+                route("/app/rest/sample/echo-json", //
+                        post(req -> HttpResponse.body(200, json(), sampleResource.postEcho(req.body(json(), EchoRequest.class))))), //
+                route("/app/rest/sample/me", auth("user", //
+                        get(req -> HttpResponse.text(200, sampleResource.getMe(req.principal()))))), //
+                route("/app/rest/tasks", //
+                        getRest(json(), req -> taskResource.getTasks()), //
+                        postRest(json(), TaskEntity.class, (req, reqBody) -> taskResource.postTasks(reqBody))), //
+                route("/app/rest/tasks/{id}", //
+                        getRest(json(), req -> taskResource.getTask(req.pathParam("id").get())), //
+                        putRest(json(), TaskEntity.class, (req, reqBody) -> taskResource.putTask(req.pathParam("id").get(), reqBody)), //
+                        delete(req -> HttpResponse.text(200, taskResource.deleteTask(req.pathParam("id").get())))), //
+                route("/app/pages", auth("user", //
+                        route("/sample", //
+                                get(req -> HttpResponse.html(200, sampleController.getSamplePage(req.principal()))))), //
+                        route("/tasks", //
+                                getHtml(req -> taskController.getTasksPage()), //
+                                postHtml(req -> taskController.postTasksPage( //
+                                        req.formParam("title").get(), //
+                                        req.formParam("description").orElse(null)))), //
+                        route("/tasks/{id}", //
+                                getHtml(req -> taskController.getTaskPage( //
+                                        req.pathParam("id").get(), //
+                                        req.queryParam("action").orElse(null))), //
+                                postHtml(req -> taskController.postTaskPage( //
+                                        req.pathParam("id").get(), //
+                                        req.formParam("action").get(), //
+                                        req.formParam("title").get(), //
+                                        req.formParam("description").get(), //
+                                        req.formParam("done").orElse(null))))) //
+        );
     }
 
     void stop() {

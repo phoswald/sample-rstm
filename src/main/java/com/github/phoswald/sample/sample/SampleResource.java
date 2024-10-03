@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
+import com.github.phoswald.rstm.security.Principal;
 
 public class SampleResource {
 
@@ -14,11 +15,15 @@ public class SampleResource {
     }
 
     public String getTime() {
-        return ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        return ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "\n";
     }
 
     public String getConfig() {
-        return sampleConfig;
+        return sampleConfig + "\n";
+    }
+    
+    public String getMe(Principal principal) {
+        return principal.name() + "\n" + principal.roles() + "\n" + principal.token() + "\n";
     }
 
     public EchoResponse postEcho(EchoRequest request) {
