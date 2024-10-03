@@ -67,7 +67,7 @@ public class TaskController {
             String id, //
             String action, //
             String title, //
-            String description, // TODO (form/templating): multiline handling is wrong
+            String description, //
             String done) {
         logger.info("Received from with id=" + id + ", action=" + action + ", title=" + title + ", description=" + description + ", done=" + done);
         try(TaskRepository repository = repositoryFactory.get()) {

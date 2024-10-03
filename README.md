@@ -42,7 +42,6 @@ $ docker run -it --name sample-rstm --rm \
   -e APP_JDBC_URL=jdbc:postgresql://surin.home:5432/mydb \
   -e APP_JDBC_USERNAME=myuser \
   -e APP_JDBC_PASSWORD=mypassword \
-  -v ./databases/:/databases \
   sample-rstm:0.1.0-SNAPSHOT
 ~~~
 

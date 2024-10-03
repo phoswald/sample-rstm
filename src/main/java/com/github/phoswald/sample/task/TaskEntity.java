@@ -6,8 +6,6 @@ import java.util.UUID;
 
 public class TaskEntity {
 
-    static final String SELECT_ALL = "TaskEntity.Select";
-
     private String taskId;
 
     private String userId;

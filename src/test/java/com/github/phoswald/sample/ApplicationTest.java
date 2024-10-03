@@ -189,7 +189,7 @@ class ApplicationTest {
         @Override
         public IdentityProvider getIdentityProvider() {
             return new SimpleIdentityProvider() //
-                    .add("username", "password".toCharArray(), List.of("user"));
+                    .add("username", "password", List.of("user"));
         }
     }
 }
