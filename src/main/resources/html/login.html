@@ -22,20 +22,43 @@
       </div>
     </nav>
     <div class="container" style="max-width: 640px">
-      <h1 class="my-4">Login</h1>
-      <form action="login" method="post">
-        <div class="mb-3">
-          <label for="username" class="form-label">Username:</label>
-          <input type="text" class="form-control" id="username" name="username">
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Password:</label>
-          <input type="password" class="form-control" id="password" name="password">
-        </div>
-        <p>
-          <button type="submit" class="btn btn-primary">Login</button> 
-        </p>
-      </form>
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <h1 class="my-4">Login</h1>
+        <form action="login" method="post">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username:</label>
+            <input type="text" class="form-control" id="username" name="username">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password:</label>
+            <input type="password" class="form-control" id="password" name="password">
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p></p>
+        <span style="text-align: center">OR</span>
+        <p></p>
+        <a href="login?provider=dex" class="btn btn-outline-secondary">
+          <img style="margin: 4px; width: 20px; height: 20px; display: inline-bock" src="images/dex-logo.png"> 
+          Sign in with Dex
+        </a>
+        <a href="login?provider=google" class="btn btn-outline-secondary">
+          <img style="margin: 4px; width: 20px; height: 20px; display: inline-bock" src="images/google-logo.svg">
+          Sign in with Google
+        </a>
+        <a href="login?provider=microsoft" class="btn btn-outline-secondary">
+          <img style="margin: 4px; width: 20px; height: 20px; display: inline-bock" src="images/microsoft-logo.svg">
+          Sign in with Microsoft
+        </a>
+        <a href="login?provider=facebook" class="btn btn-outline-secondary">
+          <img style="margin: 4px; width: 20px; height: 20px; display: inline-bock" src="images/facebook-logo.png">
+          Sign in with Facebook
+        </a>
+        <!-- <a href="login?provider=apple" class="btn btn-outline-secondary">
+          <img style="margin: 4px; width: 20px; height: 20px; display: inline-bock" src="images/apple-logo.svg">
+          Sign in with Apple
+        </a> -->
+      </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
   </body>

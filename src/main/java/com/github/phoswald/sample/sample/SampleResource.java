@@ -21,9 +21,9 @@ public class SampleResource {
     public String getConfig() {
         return sampleConfig + "\n";
     }
-    
+
     public String getMe(Principal principal) {
-        return principal.name() + "\n" + principal.roles() + "\n" + principal.token() + "\n";
+        return principal.name() + "\n" + principal.roles() + "\n" + principal.provider() + "\n" + principal.token() + "\n";
     }
 
     public EchoResponse postEcho(EchoRequest request) {

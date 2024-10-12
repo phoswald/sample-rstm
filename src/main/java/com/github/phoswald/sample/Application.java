@@ -9,6 +9,7 @@ import static com.github.phoswald.rstm.http.server.HttpServerConfig.get;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.login;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.oidc;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.post;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postRest;
@@ -34,8 +35,7 @@ import com.github.phoswald.sample.task.TaskResource;
  
 public class Application {
 
-    private static final Logger logger = LoggerFactory.getLogger(Application.class);
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final int port;
     private final SampleResource sampleResource;
     private final SampleController sampleController;
@@ -78,6 +78,7 @@ public class Application {
                 route("/", //
                         resources("/html/")), //
                 route("/login", login()), //
+                route("/oauth/callback", oidc()), //
                 route("/app/rest/sample/time", //
                         get(req -> HttpResponse.text(200, sampleResource.getTime()))), //
                 route("/app/rest/sample/config", //

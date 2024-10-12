@@ -14,9 +14,9 @@ import com.github.phoswald.rstm.template.TemplateEngine;
 
 public class TaskController {
 
-    private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
     private static final TemplateEngine templateEngine = new TemplateEngine();
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Supplier<TaskRepository> repositoryFactory;
 
     public TaskController(Supplier<TaskRepository> repositoryFactory) {
