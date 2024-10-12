@@ -9,6 +9,7 @@ import static com.github.phoswald.rstm.http.server.HttpServerConfig.get;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.login;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.oauth;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.post;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postRest;
@@ -25,6 +26,7 @@ import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.rstm.security.IdentityProvider;
+import com.github.phoswald.rstm.security.oidc.OidcUtil;
 import com.github.phoswald.sample.sample.EchoRequest;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
@@ -34,14 +36,14 @@ import com.github.phoswald.sample.task.TaskResource;
  
 public class Application {
 
-    private static final Logger logger = LoggerFactory.getLogger(Application.class);
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final int port;
     private final SampleResource sampleResource;
     private final SampleController sampleController;
     private final TaskResource taskResource;
     private final TaskController taskController;
     private final IdentityProvider identityProvider;
+    private final OidcUtil oidc;
     private HttpServer httpServer;
  
     public Application( //
@@ -50,13 +52,15 @@ public class Application {
             SampleController sampleController, //
             TaskResource taskResource, //
             TaskController taskController, //
-            IdentityProvider identityProvider) {
+            IdentityProvider identityProvider, //
+            OidcUtil oidc) {
         this.port = Integer.parseInt(config.getConfigProperty("app.http.port").orElse("8080"));
         this.sampleResource = sampleResource;
         this.sampleController = sampleController;
         this.taskResource = taskResource;
         this.taskController = taskController;
         this.identityProvider = identityProvider;
+        this.oidc = oidc;
     }
 
     public static void main(String[] args) {
@@ -78,6 +82,7 @@ public class Application {
                 route("/", //
                         resources("/html/")), //
                 route("/login", login()), //
+                route("/oauth/", oauth(oidc)), //
                 route("/app/rest/sample/time", //
                         get(req -> HttpResponse.text(200, sampleResource.getTime()))), //
                 route("/app/rest/sample/config", //

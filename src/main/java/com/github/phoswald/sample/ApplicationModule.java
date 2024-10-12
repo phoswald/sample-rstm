@@ -3,15 +3,22 @@ package com.github.phoswald.sample;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.phoswald.rstm.config.ConfigProvider;
 import com.github.phoswald.rstm.security.IdentityProvider;
+import com.github.phoswald.rstm.security.SimpleIdentityProvider;
 import com.github.phoswald.rstm.security.SimpleTokenProvider;
 import com.github.phoswald.rstm.security.TokenProvider;
 import com.github.phoswald.rstm.security.jdbc.JdbcIdentityProvider;
 import com.github.phoswald.rstm.security.jwt.JwtTokenProvider;
+import com.github.phoswald.rstm.security.oidc.OidcUtil;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.TaskController;
@@ -20,10 +27,12 @@ import com.github.phoswald.sample.task.TaskResource;
 
 public class ApplicationModule {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     public Application getApplication() {
         return new Application(getConfigProvider(), //
                 getSampleResource(), getSampleController(), getTaskResource(), getTaskController(), //
-                getIdentityProvider());
+                getIdentityProvider(), getOidc());
     }
 
     public ConfigProvider getConfigProvider() {
@@ -51,7 +60,13 @@ public class ApplicationModule {
     }
 
     public IdentityProvider getIdentityProvider() {
-        return new JdbcIdentityProvider(getTokenProvider(), this::getConnection);
+        var config = getConfigProvider();
+        if(config.getConfigProperty("app.jdbc.url").isPresent()) {
+            return new JdbcIdentityProvider(getTokenProvider(), this::getConnection);
+        } else {
+            logger.warn("Using simple IDP: login as guest:guest");
+            return new SimpleIdentityProvider().add("guest", "guest", List.of("user"));
+        }
     }
     
     private TokenProvider getTokenProvider() {
@@ -62,6 +77,23 @@ public class ApplicationModule {
             return new JwtTokenProvider(issuer.get(), secret.get());
         } else {
             return new SimpleTokenProvider();
+        }
+    }
+    
+    public OidcUtil getOidc() {
+        try {
+            var config = getConfigProvider();
+            return new OidcUtil(config.getConfigProperty("app.oidc.redirect.uri").get()) //
+                    .addDex( //
+                            config.getConfigProperty("app.oidc.dex.client.id").get(), //
+                            config.getConfigProperty("app.oidc.dex.client.secret").get(), //
+                            config.getConfigProperty("app.oidc.dex.base.uri").get()) //
+                    .addGoogle( //
+                            config.getConfigProperty("app.oidc.google.client.id").get(), //
+                            config.getConfigProperty("app.oidc.google.client.secret").get());
+        } catch(NoSuchElementException e) {
+            logger.warn("Skipping OIDC configuration.");
+            return null;
         }
     }
 
