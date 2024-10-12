@@ -3,8 +3,6 @@ package com.github.phoswald.sample;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -18,7 +16,7 @@ import com.github.phoswald.rstm.security.SimpleTokenProvider;
 import com.github.phoswald.rstm.security.TokenProvider;
 import com.github.phoswald.rstm.security.jdbc.JdbcIdentityProvider;
 import com.github.phoswald.rstm.security.jwt.JwtTokenProvider;
-import com.github.phoswald.rstm.security.oidc.OidcUtil;
+import com.github.phoswald.rstm.security.oidc.OidcTokenProvider;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.TaskController;
@@ -32,7 +30,7 @@ public class ApplicationModule {
     public Application getApplication() {
         return new Application(getConfigProvider(), //
                 getSampleResource(), getSampleController(), getTaskResource(), getTaskController(), //
-                getIdentityProvider(), getOidc());
+                getIdentityProvider());
     }
 
     public ConfigProvider getConfigProvider() {
@@ -61,29 +59,20 @@ public class ApplicationModule {
 
     public IdentityProvider getIdentityProvider() {
         var config = getConfigProvider();
+        var tokenProvider = getTokenProvider();
         if(config.getConfigProperty("app.jdbc.url").isPresent()) {
-            return new JdbcIdentityProvider(getTokenProvider(), this::getConnection);
+            return new JdbcIdentityProvider(tokenProvider, this::getConnection);
         } else {
             logger.warn("Using simple IDP: login as guest:guest");
-            return new SimpleIdentityProvider().add("guest", "guest", List.of("user"));
+            return new SimpleIdentityProvider(tokenProvider)/*.add("guest", "guest", List.of("user"))*/; // XXX
         }
     }
     
     private TokenProvider getTokenProvider() {
         var config = getConfigProvider();
-        Optional<String> issuer = config.getConfigProperty("app.jwt.issuer");
-        Optional<String> secret = config.getConfigProperty("app.jwt.secret");
-        if(issuer.isPresent() && secret.isPresent()) {
-            return new JwtTokenProvider(issuer.get(), secret.get());
-        } else {
-            return new SimpleTokenProvider();
-        }
-    }
-    
-    public OidcUtil getOidc() {
-        try {
-            var config = getConfigProvider();
-            return new OidcUtil(config.getConfigProperty("app.oidc.redirect.uri").get()) //
+        if(config.getConfigProperty("app.oidc.redirect.uri").isPresent()) {
+            var tokenProvider = new OidcTokenProvider(config.getConfigProperty("app.oidc.redirect.uri").get());
+            tokenProvider.getOidcUtil() //
                     .addDex( //
                             config.getConfigProperty("app.oidc.dex.client.id").get(), //
                             config.getConfigProperty("app.oidc.dex.client.secret").get(), //
@@ -91,9 +80,15 @@ public class ApplicationModule {
                     .addGoogle( //
                             config.getConfigProperty("app.oidc.google.client.id").get(), //
                             config.getConfigProperty("app.oidc.google.client.secret").get());
-        } catch(NoSuchElementException e) {
-            logger.warn("Skipping OIDC configuration.");
-            return null;
+            return tokenProvider;
+        } else {
+            Optional<String> issuer = config.getConfigProperty("app.jwt.issuer");
+            Optional<String> secret = config.getConfigProperty("app.jwt.secret");
+            if(issuer.isPresent() && secret.isPresent()) {
+                return new JwtTokenProvider(issuer.get(), secret.get());
+            } else {
+                return new SimpleTokenProvider();
+            }
         }
     }
 
