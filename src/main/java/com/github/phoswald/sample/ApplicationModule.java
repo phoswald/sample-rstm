@@ -3,6 +3,7 @@ package com.github.phoswald.sample;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -16,7 +17,7 @@ import com.github.phoswald.rstm.security.SimpleTokenProvider;
 import com.github.phoswald.rstm.security.TokenProvider;
 import com.github.phoswald.rstm.security.jdbc.JdbcIdentityProvider;
 import com.github.phoswald.rstm.security.jwt.JwtTokenProvider;
-import com.github.phoswald.rstm.security.oidc.OidcTokenProvider;
+import com.github.phoswald.rstm.security.oidc.OidcIdentityProvider;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.TaskController;
@@ -58,43 +59,60 @@ public class ApplicationModule {
     }
 
     public IdentityProvider getIdentityProvider() {
-        var config = getConfigProvider();
-        var tokenProvider = getTokenProvider();
-        if(config.getConfigProperty("app.jdbc.url").isPresent()) {
-            return new JdbcIdentityProvider(tokenProvider, this::getConnection);
+        ConfigProvider config = getConfigProvider();
+        IdentityProvider localIdp = getLocalIdentityProvider();
+        Optional<String> oidcRedirctUri = config.getConfigProperty("app.oidc.redirect.uri");
+        if (oidcRedirctUri.isPresent()) {
+            // Create a federated IDP that wraps the local IDP
+            logger.info("Using federated IDP: OIDC");
+            OidcIdentityProvider federatedIdp = new OidcIdentityProvider(oidcRedirctUri.get(), localIdp);
+            // Add Dex if configured
+            Optional<String> dexClientId = config.getConfigProperty("app.oidc.dex.client.id");
+            Optional<String> dexClientSecret = config.getConfigProperty("app.oidc.dex.client.secret");
+            Optional<String> dexBaseUri = config.getConfigProperty("app.oidc.dex.base.uri");
+            if (dexClientId.isPresent() && dexClientSecret.isPresent()) {
+                logger.info("Using OIDC provider: DEX");
+                federatedIdp.addDex(dexClientId.get(), dexClientSecret.get(), dexBaseUri.get());
+            }
+            // Add Google if configured
+            Optional<String> googleClientId = config.getConfigProperty("app.oidc.google.client.id");
+            Optional<String> googleClientSecret = config.getConfigProperty("app.oidc.google.client.secret");
+            if (googleClientId.isPresent() && googleClientSecret.isPresent()) {
+                logger.info("Using OIDC provider: Google");
+                federatedIdp.addGoogle(googleClientId.get(), googleClientSecret.get());
+            }
+            return federatedIdp;
         } else {
-            logger.warn("Using simple IDP: login as guest:guest");
-            return new SimpleIdentityProvider(tokenProvider)/*.add("guest", "guest", List.of("user"))*/; // XXX
+            return localIdp;
         }
     }
-    
-    private TokenProvider getTokenProvider() {
-        var config = getConfigProvider();
-        if(config.getConfigProperty("app.oidc.redirect.uri").isPresent()) {
-            var tokenProvider = new OidcTokenProvider(config.getConfigProperty("app.oidc.redirect.uri").get());
-            tokenProvider.getOidcUtil() //
-                    .addDex( //
-                            config.getConfigProperty("app.oidc.dex.client.id").get(), //
-                            config.getConfigProperty("app.oidc.dex.client.secret").get(), //
-                            config.getConfigProperty("app.oidc.dex.base.uri").get()) //
-                    .addGoogle( //
-                            config.getConfigProperty("app.oidc.google.client.id").get(), //
-                            config.getConfigProperty("app.oidc.google.client.secret").get());
-            return tokenProvider;
+
+    private IdentityProvider getLocalIdentityProvider() {
+        ConfigProvider config = getConfigProvider();
+        if (config.getConfigProperty("app.jdbc.url").isPresent()) {
+            logger.info("Using local IDP: JDBC");
+            return new JdbcIdentityProvider(getTokenProvider(), this::getConnection);
         } else {
-            Optional<String> issuer = config.getConfigProperty("app.jwt.issuer");
-            Optional<String> secret = config.getConfigProperty("app.jwt.secret");
-            if(issuer.isPresent() && secret.isPresent()) {
-                return new JwtTokenProvider(issuer.get(), secret.get());
-            } else {
-                return new SimpleTokenProvider();
-            }
+            logger.warn("Using simple IDP: login as guest:guest");
+            return new SimpleIdentityProvider(getTokenProvider()).registerUser("guest", "guest", List.of("user"));
+        }
+    }
+
+    private TokenProvider getTokenProvider() {
+        ConfigProvider config = getConfigProvider();
+        Optional<String> issuer = config.getConfigProperty("app.jwt.issuer");
+        Optional<String> secret = config.getConfigProperty("app.jwt.secret");
+        if(issuer.isPresent() && secret.isPresent()) {
+            logger.info("Using JWT for local IDP");
+            return new JwtTokenProvider(issuer.get(), secret.get());
+        } else {
+            return new SimpleTokenProvider();
         }
     }
 
     public Connection getConnection() {
         try {
-            var config = getConfigProvider();
+            ConfigProvider config = getConfigProvider();
             String url = config.getConfigProperty("app.jdbc.url").orElse("jdbc:h2:mem:test " + hashCode() + " ;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'src/main/resources/schema.h2.sql'");
             String username = config.getConfigProperty("app.jdbc.username").orElse("sa");
             String password = config.getConfigProperty("app.jdbc.password").orElse("sa");

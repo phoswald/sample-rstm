@@ -93,7 +93,7 @@ class ApplicationTest {
     @Test
     void getSamplePage() {
         given().
-            auth().preemptive().basic("username", "password").
+            auth().preemptive().basic("username1", "password1").
         when().
             get("/app/pages/sample").
         then().
@@ -101,7 +101,7 @@ class ApplicationTest {
             contentType("text/html").
             body(startsWith("<!doctype html>"),
                 containsString("<title>Sample Page</title>"),
-                containsString("<span>Hello</span>, <span>username</span>!"), // #greeting, username
+                containsString("<span>Hello</span>, <span>username1</span>!"), // #greeting, username
                 containsString("<td>Test Config Value</td>")); // sampleConfig
     }
 
@@ -189,7 +189,7 @@ class ApplicationTest {
         @Override
         public IdentityProvider getIdentityProvider() {
             return new SimpleIdentityProvider() //
-                    .add("username", "password", List.of("user"));
+                    .registerUser("username1", "password1", List.of("user"));
         }
     }
 }

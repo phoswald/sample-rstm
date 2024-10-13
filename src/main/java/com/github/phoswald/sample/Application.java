@@ -9,7 +9,7 @@ import static com.github.phoswald.rstm.http.server.HttpServerConfig.get;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.login;
-import static com.github.phoswald.rstm.http.server.HttpServerConfig.oauth;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.oidc;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.post;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postRest;
@@ -78,7 +78,7 @@ public class Application {
                 route("/", //
                         resources("/html/")), //
                 route("/login", login()), //
-                route("/oauth/callback", oauth()), //
+                route("/oauth/callback", oidc()), //
                 route("/app/rest/sample/time", //
                         get(req -> HttpResponse.text(200, sampleResource.getTime()))), //
                 route("/app/rest/sample/config", //
