@@ -19,7 +19,7 @@ import com.github.phoswald.rstm.config.ConfigProvider;
 import com.github.phoswald.rstm.security.IdentityProvider;
 import com.github.phoswald.rstm.security.SimpleIdentityProvider;
 import com.github.phoswald.sample.task.TaskEntity;
- 
+
 class ApplicationTest {
 
     private static final ApplicationModule module = new TestModule();
@@ -189,7 +189,7 @@ class ApplicationTest {
         @Override
         public IdentityProvider getIdentityProvider() {
             return new SimpleIdentityProvider() //
-                    .registerUser("username1", "password1", List.of("user"));
+                    .withUser("username1", "password1", List.of("user"));
         }
     }
 }

@@ -72,14 +72,14 @@ public class ApplicationModule {
             Optional<String> dexBaseUri = config.getConfigProperty("app.oidc.dex.base.uri");
             if (dexClientId.isPresent() && dexClientSecret.isPresent()) {
                 logger.info("Using OIDC provider: DEX");
-                federatedIdp.addDex(dexClientId.get(), dexClientSecret.get(), dexBaseUri.get());
+                federatedIdp.withDex(dexClientId.get(), dexClientSecret.get(), dexBaseUri.get());
             }
             // Add Google if configured
             Optional<String> googleClientId = config.getConfigProperty("app.oidc.google.client.id");
             Optional<String> googleClientSecret = config.getConfigProperty("app.oidc.google.client.secret");
             if (googleClientId.isPresent() && googleClientSecret.isPresent()) {
                 logger.info("Using OIDC provider: Google");
-                federatedIdp.addGoogle(googleClientId.get(), googleClientSecret.get());
+                federatedIdp.withGoogle(googleClientId.get(), googleClientSecret.get());
             }
             return federatedIdp;
         } else {
@@ -93,8 +93,8 @@ public class ApplicationModule {
             logger.info("Using local IDP: JDBC");
             return new JdbcIdentityProvider(getTokenProvider(), this::getConnection);
         } else {
-            logger.warn("Using simple IDP: login as guest:guest");
-            return new SimpleIdentityProvider(getTokenProvider()).registerUser("guest", "guest", List.of("user"));
+            logger.warn("Using local IDP with login guest:guest");
+            return new SimpleIdentityProvider(getTokenProvider()).withUser("guest", "guest", List.of("user"));
         }
     }
 
