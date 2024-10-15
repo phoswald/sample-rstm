@@ -81,6 +81,14 @@ public class ApplicationModule {
                 logger.info("Using OIDC provider: Google");
                 federatedIdp.withGoogle(googleClientId.get(), googleClientSecret.get());
             }
+            // Add Microsoft if configured
+            Optional<String> microsoftClientId = config.getConfigProperty("app.oidc.microsoft.client.id");
+            Optional<String> microsoftClientSecret = config.getConfigProperty("app.oidc.microsoft.client.secret");
+            Optional<String> microsoftTenantId = config.getConfigProperty("app.oidc.microsoft.tenant.id");
+            if (microsoftClientId.isPresent() && microsoftClientSecret.isPresent()) {
+                logger.info("Using OIDC provider: Google");
+                federatedIdp.withMicrosoft(microsoftClientId.get(), microsoftClientSecret.get(), microsoftTenantId.get());
+            }
             return federatedIdp;
         } else {
             return localIdp;
