@@ -71,7 +71,7 @@ public class ApplicationModule {
             Optional<String> dexClientSecret = config.getConfigProperty("app.oidc.dex.client.secret");
             Optional<String> dexBaseUri = config.getConfigProperty("app.oidc.dex.base.uri");
             if (dexClientId.isPresent() && dexClientSecret.isPresent()) {
-                logger.info("Using OIDC provider: DEX");
+                logger.info("Using OIDC provider: Dex");
                 federatedIdp.withDex(dexClientId.get(), dexClientSecret.get(), dexBaseUri.get());
             }
             // Add Google if configured
@@ -86,8 +86,15 @@ public class ApplicationModule {
             Optional<String> microsoftClientSecret = config.getConfigProperty("app.oidc.microsoft.client.secret");
             Optional<String> microsoftTenantId = config.getConfigProperty("app.oidc.microsoft.tenant.id");
             if (microsoftClientId.isPresent() && microsoftClientSecret.isPresent()) {
-                logger.info("Using OIDC provider: Google");
+                logger.info("Using OIDC provider: Microsoft");
                 federatedIdp.withMicrosoft(microsoftClientId.get(), microsoftClientSecret.get(), microsoftTenantId.get());
+            }
+            // Add Facebook if configured
+            Optional<String> facebookClientId = config.getConfigProperty("app.oidc.facebook.client.id");
+            Optional<String> facebookClientSecret = config.getConfigProperty("app.oidc.facebook.client.secret");
+            if (facebookClientId.isPresent() && facebookClientSecret.isPresent()) {
+                logger.info("Using OIDC provider: Facebook");
+                federatedIdp.withFacebook(facebookClientId.get(), facebookClientSecret.get());
             }
             return federatedIdp;
         } else {
