@@ -16,6 +16,14 @@
   </properties>
 
   <dependencies>
+    <!-- Provided -->
+    <dependency>
+      <groupId>com.github.phoswald</groupId>
+      <artifactId>record-builder</artifactId>
+      <version>0.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -33,16 +41,6 @@
     <dependency>
       <groupId>com.github.phoswald</groupId>
       <artifactId>rstm-http</artifactId>
-      <version>${rstm.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.phoswald</groupId>
-      <artifactId>rstm-http-codec-json</artifactId>
-      <version>${rstm.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.phoswald</groupId>
-      <artifactId>rstm-http-codec-xml</artifactId>
       <version>${rstm.version}</version>
     </dependency>
     <dependency>

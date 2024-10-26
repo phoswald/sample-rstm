@@ -14,20 +14,20 @@ public class TaskViewModel {
     private final String description;
     private final boolean done;
 
-    private TaskViewModel(TaskEntity entity) {
-        this.taskId = entity.getTaskId();
-        this.timestamp = format(entity.getTimestamp());
-        this.title = entity.getTitle();
-        this.description = entity.getDescription();
-        this.done = entity.isDone();
+    private TaskViewModel(Task task) {
+        this.taskId = task.taskId();
+        this.timestamp = format(task.timestamp());
+        this.title = task.title();
+        this.description = task.description();
+        this.done = task.done();
     }
 
-    public static TaskViewModel ofEntity(TaskEntity entity) {
-        return new TaskViewModel(entity);
+    public static TaskViewModel ofTask(Task task) {
+        return new TaskViewModel(task);
     }
 
-    public static TaskListViewModel ofEntityList(List<TaskEntity> entities) {
-        return new TaskListViewModel(entities.stream().map(TaskViewModel::ofEntity).toList());
+    public static TaskListViewModel ofTasks(List<Task> tasks) {
+        return new TaskListViewModel(tasks.stream().map(TaskViewModel::ofTask).toList());
     }
 
     private String format(Instant instant) {

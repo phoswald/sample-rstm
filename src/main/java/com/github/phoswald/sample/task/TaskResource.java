@@ -12,50 +12,53 @@ public class TaskResource {
         this.repositoryFactory = repositoryFactory;
     }
 
-    public List<TaskEntity> getTasks() {
-        try(TaskRepository repository = repositoryFactory.get()) {
-            List<TaskEntity> entities = repository.selectAllTasks();
-            return entities;
+    public TaskList getTasks() {
+        try (TaskRepository repository = repositoryFactory.get()) {
+            List<Task> tasks = repository.selectAllTasks();
+            return new TaskList(tasks);
         }
     }
 
-    public TaskEntity postTasks(TaskEntity request) {
-        try(TaskRepository repository = repositoryFactory.get()) {
-            TaskEntity entity = new TaskEntity();
-            entity.setNewTaskId();
-            entity.setUserId("guest");
-            entity.setTimestamp(Instant.now());
-            entity.setTitle(request.getTitle());
-            entity.setDescription(request.getDescription());
-            entity.setDone(request.isDone());
-            repository.createTask(entity);
-            return entity;
+    public Task postTasks(Task request) {
+        try (TaskRepository repository = repositoryFactory.get()) {
+            Task task = Task.builder()
+                    .taskId(Task.newTaskId())
+                    .userId("guest")
+                    .timestamp(Instant.now())
+                    .title(request.title())
+                    .description(request.description())
+                    .done(request.done())
+                    .build();
+            repository.createTask(task);
+            return task;
         }
     }
 
-    public TaskEntity getTask(String id) {
-        try(TaskRepository repository = repositoryFactory.get()) {
-            TaskEntity entity = repository.selectTaskById(id);
-            return entity;
+    public Task getTask(String id) {
+        try (TaskRepository repository = repositoryFactory.get()) {
+            Task task = repository.selectTaskById(id);
+            return task;
         }
     }
 
-    public TaskEntity putTask(String id, TaskEntity request) {
-        try(TaskRepository repository = repositoryFactory.get()) {
-            TaskEntity entity = repository.selectTaskById(id);
-            entity.setTimestamp(Instant.now());
-            entity.setTitle(request.getTitle());
-            entity.setDescription(request.getDescription());
-            entity.setDone(request.isDone());
-            repository.updateTask(entity);
-            return entity;
+    public Task putTask(String id, Task request) {
+        try (TaskRepository repository = repositoryFactory.get()) {
+            Task task = repository.selectTaskById(id);
+            task = task.toBuilder()
+                    .timestamp(Instant.now())
+                    .title(request.title())
+                    .description(request.description())
+                    .done(request.done())
+                    .build();
+            repository.updateTask(task);
+            return task;
         }
     }
 
     public String deleteTask(String id) {
-        try(TaskRepository repository = repositoryFactory.get()) {
-            TaskEntity entity = repository.selectTaskById(id);
-            repository.deleteTask(entity);
+        try (TaskRepository repository = repositoryFactory.get()) {
+            Task task = repository.selectTaskById(id);
+            repository.deleteTask(task);
             return "";
         }
     }

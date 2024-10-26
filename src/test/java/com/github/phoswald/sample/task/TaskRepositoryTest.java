@@ -14,22 +14,23 @@ class TaskRepositoryTest {
 
     @Test
     void testCrud() {
-        try(TaskRepository testee = new TaskRepository(module.getConnection())) {
+        try (TaskRepository testee = new TaskRepository(module.getConnection())) {
             assertEquals(0, testee.selectAllTasks().size());
 
-            TaskEntity entity = new TaskEntity();
-            entity.setNewTaskId();
-            entity.setTitle("Test Title");
-            entity.setDescription("Test Description");
-            testee.createTask(entity);
+            Task task = Task.builder()
+                    .taskId(Task.newTaskId())
+                    .title("Test Title")
+                    .description("Test Description")
+                    .build();
+            testee.createTask(task);
         }
 
-        try(TaskRepository testee = new TaskRepository(module.getConnection())) {
-            List<TaskEntity> entites = testee.selectAllTasks();
+        try (TaskRepository testee = new TaskRepository(module.getConnection())) {
+            List<Task> tasks = testee.selectAllTasks();
 
-            assertEquals(1, entites.size());
-            assertEquals("Test Title", entites.get(0).getTitle());
-            assertEquals("Test Description", entites.get(0).getDescription());
+            assertEquals(1, tasks.size());
+            assertEquals("Test Title", tasks.get(0).title());
+            assertEquals("Test Description", tasks.get(0).description());
         }
     }
 }

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import com.github.phoswald.rstm.config.ConfigProvider;
 import com.github.phoswald.rstm.security.IdentityProvider;
 import com.github.phoswald.rstm.security.SimpleIdentityProvider;
-import com.github.phoswald.sample.task.TaskEntity;
+import com.github.phoswald.sample.task.Task;
 
 class ApplicationTest {
 
@@ -87,7 +87,7 @@ class ApplicationTest {
         then().
             statusCode(200).
             contentType("application/json").
-            body(equalTo("{\"output\":\"Received Test Input\"}"));
+            body(equalTo("{\n    \"output\": \"Received Test Input\"\n}\n"));
     }
 
     @Test
@@ -108,8 +108,7 @@ class ApplicationTest {
     @Test
     void crudTaskResource() {
         var taskId = new AtomicReference<String>();
-        var request = new TaskEntity();
-        request.setTitle("Test title");
+        var request = Task.builder().title("Test title").build();
         given().
             contentType("application/json").
             body(request).
@@ -128,10 +127,9 @@ class ApplicationTest {
         then().
             statusCode(200).
             contentType("application/json").
-            body("$.size()", equalTo(1));
+            body("tasks.size()", equalTo(1));
 
-        request = new TaskEntity();
-        request.setTitle("Test title, updated");
+        request = Task.builder().title("Test title, updated").build();
         given().
             contentType("application/json").
             body(request).
@@ -164,7 +162,7 @@ class ApplicationTest {
         then().
             statusCode(200).
             contentType("application/json").
-            body("$.size()", equalTo(0));
+            body("tasks.size()", equalTo(0));
 
         when().
             get("/app/rest/tasks/" + taskId.get()).

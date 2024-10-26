@@ -30,7 +30,7 @@ import com.github.phoswald.sample.sample.EchoRequest;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.TaskController;
-import com.github.phoswald.sample.task.TaskEntity;
+import com.github.phoswald.sample.task.Task;
 import com.github.phoswald.sample.task.TaskResource;
  
 public class Application {
@@ -91,10 +91,10 @@ public class Application {
                         get(req -> HttpResponse.text(200, sampleResource.getMe(req.principal()))))), //
                 route("/app/rest/tasks", //
                         getRest(json(), req -> taskResource.getTasks()), //
-                        postRest(json(), TaskEntity.class, (req, reqBody) -> taskResource.postTasks(reqBody))), //
+                        postRest(json(), Task.class, (req, reqBody) -> taskResource.postTasks(reqBody))), //
                 route("/app/rest/tasks/{id}", //
                         getRest(json(), req -> taskResource.getTask(req.pathParam("id").get())), //
-                        putRest(json(), TaskEntity.class, (req, reqBody) -> taskResource.putTask(req.pathParam("id").get(), reqBody)), //
+                        putRest(json(), Task.class, (req, reqBody) -> taskResource.putTask(req.pathParam("id").get(), reqBody)), //
                         delete(req -> HttpResponse.text(200, taskResource.deleteTask(req.pathParam("id").get())))), //
                 route("/app/pages", auth("user", //
                         route("/sample", //

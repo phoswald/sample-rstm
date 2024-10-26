@@ -117,7 +117,7 @@ public class ApplicationModule {
         ConfigProvider config = getConfigProvider();
         Optional<String> issuer = config.getConfigProperty("app.jwt.issuer");
         Optional<String> secret = config.getConfigProperty("app.jwt.secret");
-        if(issuer.isPresent() && secret.isPresent()) {
+        if (issuer.isPresent() && secret.isPresent()) {
             logger.info("Using JWT for local IDP");
             return new JwtTokenProvider(issuer.get(), secret.get());
         } else {
@@ -128,7 +128,7 @@ public class ApplicationModule {
     public Connection getConnection() {
         try {
             ConfigProvider config = getConfigProvider();
-            String url = config.getConfigProperty("app.jdbc.url").orElse("jdbc:h2:mem:test " + hashCode() + " ;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'src/main/resources/schema.h2.sql'");
+            String url = config.getConfigProperty("app.jdbc.url").orElse("jdbc:h2:mem:test " + hashCode() + " ;DB_CLOSE_DELAY=-1;INIT=RUNSCRIPT FROM 'classpath:/schema.h2.sql'");
             String username = config.getConfigProperty("app.jdbc.username").orElse("sa");
             String password = config.getConfigProperty("app.jdbc.password").orElse("sa");
             return DriverManager.getConnection(url, username, password);

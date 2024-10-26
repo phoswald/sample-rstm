@@ -24,10 +24,10 @@ public class TaskController {
     }
 
     public String getTasksPage() {
-        try(TaskRepository repository = repositoryFactory.get()) {
-            List<TaskEntity> entities = repository.selectAllTasks();
+        try (TaskRepository repository = repositoryFactory.get()) {
+            List<Task> tasks = repository.selectAllTasks();
             Template<TaskListViewModel> template = templateEngine.compile(TaskListViewModel.class, "task-list");
-            return template.evaluate(TaskViewModel.ofEntityList(entities));
+            return template.evaluate(TaskViewModel.ofTasks(tasks));
         }
     }
 
@@ -35,15 +35,16 @@ public class TaskController {
             String title, //
             String description) {
         logger.info("Received from with title=" + title + ", description=" + description);
-        try(TaskRepository repository = repositoryFactory.get()) {
-            TaskEntity entity = new TaskEntity();
-            entity.setNewTaskId();
-            entity.setUserId("guest");
-            entity.setTimestamp(Instant.now());
-            entity.setTitle(title);
-            entity.setDescription(description);
-            entity.setDone(false);
-            repository.createTask(entity);
+        try (TaskRepository repository = repositoryFactory.get()) {
+            Task task = Task.builder()
+                    .taskId(Task.newTaskId())
+                    .userId("guest")
+                    .timestamp(Instant.now())
+                    .title(title)
+                    .description(description)
+                    .done(false)
+                    .build();
+            repository.createTask(task);
         }
         return getTasksPage();
     }
@@ -51,14 +52,14 @@ public class TaskController {
     public String getTaskPage( //
             String id, //
             String action) {
-        try(TaskRepository repository = repositoryFactory.get()) {
-            TaskEntity entity = repository.selectTaskById(id);
+        try (TaskRepository repository = repositoryFactory.get()) {
+            Task task = repository.selectTaskById(id);
             if (Objects.equals(action, "edit")) {
                 Template<TaskViewModel> template = templateEngine.compile(TaskViewModel.class, "task-edit");
-                return template.evaluate(TaskViewModel.ofEntity(entity));
+                return template.evaluate(TaskViewModel.ofTask(task));
             } else {
                 Template<TaskViewModel> template = templateEngine.compile(TaskViewModel.class, "task");
-                return template.evaluate(TaskViewModel.ofEntity(entity));
+                return template.evaluate(TaskViewModel.ofTask(task));
             }
         }
     }
@@ -70,18 +71,20 @@ public class TaskController {
             String description, //
             String done) {
         logger.info("Received from with id=" + id + ", action=" + action + ", title=" + title + ", description=" + description + ", done=" + done);
-        try(TaskRepository repository = repositoryFactory.get()) {
-            TaskEntity entity = repository.selectTaskById(id);
+        try (TaskRepository repository = repositoryFactory.get()) {
+            Task task = repository.selectTaskById(id);
             if (Objects.equals(action, "delete")) {
-                repository.deleteTask(entity);
+                repository.deleteTask(task);
                 return Paths.get("/app/pages/tasks");
             }
             if (Objects.equals(action, "store")) {
-                entity.setTimestamp(Instant.now());
-                entity.setTitle(title);
-                entity.setDescription(description);
-                entity.setDone(Objects.equals(done, "on"));
-                repository.updateTask(entity);
+                task = task.toBuilder()
+                        .timestamp(Instant.now())
+                        .title(title)
+                        .description(description)
+                        .done(Objects.equals(done, "on"))
+                        .build();
+                repository.updateTask(task);
             }
         }
         return getTaskPage(id, null);

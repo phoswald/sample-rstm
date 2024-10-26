@@ -26,7 +26,7 @@ public class TaskRepository implements AutoCloseable {
         }
     }
 
-    public List<TaskEntity> selectAllTasks() {
+    public List<Task> selectAllTasks() {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     SELECT task_id_, user_id_, timestamp_, title_, description_, done_
@@ -35,25 +35,26 @@ public class TaskRepository implements AutoCloseable {
                     """);
             stmt.setMaxRows(1000);
             ResultSet resultSet = stmt.executeQuery();
-            List<TaskEntity> resultList = new ArrayList<>();
+            List<Task> tasks = new ArrayList<>();
             while (resultSet.next()) {
-                TaskEntity resultEntity = new TaskEntity();
-                resultEntity.setTaskId(resultSet.getString("task_id_"));
-                resultEntity.setUserId(resultSet.getString("user_id_"));
-                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")));
-                resultEntity.setTitle(resultSet.getString("title_"));
-                resultEntity.setDescription(resultSet.getString("description_"));
-                resultEntity.setDone(resultSet.getBoolean("done_"));
-                resultList.add(resultEntity);
+                Task task = Task.builder()
+                        .taskId(resultSet.getString("task_id_"))
+                        .userId(resultSet.getString("user_id_"))
+                        .timestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")))
+                        .title(resultSet.getString("title_"))
+                        .description(resultSet.getString("description_"))
+                        .done(resultSet.getBoolean("done_"))
+                        .build();
+                tasks.add(task);
             }
             resultSet.close();
-            return resultList;
+            return tasks;
         } catch (SQLException e) {
             throw new SqlException(e);
         }
     }
 
-    public TaskEntity selectTaskById(String taskId) {
+    public Task selectTaskById(String taskId) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     SELECT task_id_, user_id_, timestamp_, title_, description_, done_
@@ -63,15 +64,16 @@ public class TaskRepository implements AutoCloseable {
             stmt.setString(1, taskId);
             ResultSet resultSet = stmt.executeQuery();
             if (resultSet.next()) {
-                TaskEntity resultEntity = new TaskEntity();
-                resultEntity.setTaskId(resultSet.getString("task_id_"));
-                resultEntity.setUserId(resultSet.getString("user_id_"));
-                resultEntity.setTimestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")));
-                resultEntity.setTitle(resultSet.getString("title_"));
-                resultEntity.setDescription(resultSet.getString("description_"));
-                resultEntity.setDone(resultSet.getBoolean("done_"));
+                Task task = Task.builder()
+                        .taskId(resultSet.getString("task_id_"))
+                        .userId(resultSet.getString("user_id_"))
+                        .timestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")))
+                        .title(resultSet.getString("title_"))
+                        .description(resultSet.getString("description_"))
+                        .done(resultSet.getBoolean("done_"))
+                        .build();
                 resultSet.close();
-                return resultEntity;
+                return task;
             } else {
                 resultSet.close();
                 return null;
@@ -81,50 +83,50 @@ public class TaskRepository implements AutoCloseable {
         }
     }
 
-    public void createTask(TaskEntity entity) {
+    public void createTask(Task task) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     INSERT INTO task_ (task_id_, user_id_, timestamp_, title_, description_, done_)
                     VALUES (?, ?, ?, ?, ?, ?)
                     """);
-            stmt.setString(1, entity.getTaskId());
-            stmt.setString(2, entity.getUserId());
-            stmt.setTimestamp(3, convertTimestamp(entity.getTimestamp()));
-            stmt.setString(4, entity.getTitle());
-            stmt.setString(5, entity.getDescription());
-            stmt.setBoolean(6, entity.isDone());
+            stmt.setString(1, task.taskId());
+            stmt.setString(2, task.userId());
+            stmt.setTimestamp(3, convertTimestamp(task.timestamp()));
+            stmt.setString(4, task.title());
+            stmt.setString(5, task.description());
+            stmt.setBoolean(6, task.done());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new SqlException(e);
         }
     }
 
-    public void deleteTask(TaskEntity entity) {
+    public void deleteTask(Task task) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     DELETE FROM task_
                     WHERE task_id_ = ?
                     """);
-            stmt.setString(1, entity.getTaskId());
+            stmt.setString(1, task.taskId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new SqlException(e);
         }
     }
 
-    public void updateTask(TaskEntity entity) {
+    public void updateTask(Task task) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     UPDATE task_
                     SET user_id_ = ?, timestamp_ = ?, title_ = ?, description_ = ?, done_ = ?
                     WHERE task_id_ = ?
                     """);
-            stmt.setString(6, entity.getTaskId());
-            stmt.setString(1, entity.getUserId());
-            stmt.setTimestamp(2, convertTimestamp(entity.getTimestamp()));
-            stmt.setString(3, entity.getTitle());
-            stmt.setString(4, entity.getDescription());
-            stmt.setBoolean(5, entity.isDone());
+            stmt.setString(6, task.taskId());
+            stmt.setString(1, task.userId());
+            stmt.setTimestamp(2, convertTimestamp(task.timestamp()));
+            stmt.setString(3, task.title());
+            stmt.setString(4, task.description());
+            stmt.setBoolean(5, task.done());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new SqlException(e);

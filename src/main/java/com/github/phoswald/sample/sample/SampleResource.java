@@ -27,8 +27,6 @@ public class SampleResource {
     }
 
     public EchoResponse postEcho(EchoRequest request) {
-        EchoResponse response = new EchoResponse();
-        response.setOutput("Received " + request.getInput());
-        return response;
+        return new EchoResponse("Received " + request.input());
     }
 }
