@@ -1,4 +1,6 @@
-FROM eclipse-temurin:25-jre-alpine
+FROM alpine:latest
+
+RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing openjdk25-jre-headless
 
 ENV TZ                Europe/Zurich
 ENV LANG              de_CH.UTF-8
