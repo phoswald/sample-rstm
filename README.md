@@ -6,11 +6,13 @@ Experiments with the RSTM (Really Simple & Totally Minimalistic) Framework and D
 - Dynamic web content
 - REST endpoints
 - Postgres or H2 database using JDBC
+- Playwright for UI testing
 
 ## Run Standalone
 
 ~~~
 $ mvn clean verify
+$ mvn clean verify -Dtest.ui
 $ export APP_SAMPLE_CONFIG=ValueFromShell
 $ java \
   -cp $(echo target/sample-rstm-*-dist/lib)/"*" \

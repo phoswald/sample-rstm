@@ -7,17 +7,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.startsWith;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.phoswald.rstm.config.ConfigProvider;
-import com.github.phoswald.rstm.security.IdentityProvider;
-import com.github.phoswald.rstm.security.SimpleIdentityProvider;
 import com.github.phoswald.sample.task.Task;
 
 class ApplicationTest {
@@ -169,25 +164,5 @@ class ApplicationTest {
         then().
             statusCode(404).
             body(equalTo(""));
-    }
-
-    private static class TestModule extends ApplicationModule {
-        @Override
-        public ConfigProvider getConfigProvider() {
-            return new ConfigProvider() {
-                @Override
-                public Optional<String> getConfigProperty(String name) {
-                    return switch(name) {
-                        case "app.sample.config" -> Optional.of("Test Config Value");
-                        default -> super.getConfigProperty(name);
-                    };
-                }
-            };
-        }
-        @Override
-        public IdentityProvider getIdentityProvider() {
-            return new SimpleIdentityProvider() //
-                    .withUser("username1", "password1", List.of("user"));
-        }
     }
 }
