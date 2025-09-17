@@ -1,4 +1,6 @@
-FROM eclipse-temurin:21-jre-alpine
+FROM alpine:latest
+
+RUN apk add openjdk21-jre-headless
 
 ENV TZ                Europe/Zurich
 ENV LANG              de_CH.UTF-8
