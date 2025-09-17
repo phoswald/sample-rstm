@@ -83,3 +83,13 @@ Create passwords for form-based authentication (table `user_`):
 $ java -cp $(echo target/sample-rstm-*-dist/lib)/"*" \
   com.github.phoswald.rstm.security.jdbc.PasswordUtility
 ~~~
+
+## Playwright
+
+See: https://playwright.dev/java/docs/intro
+
+~~~
+$ sudo apt-get install libavif16
+~~~
+
+Cache: `~/.cache/ms-playwright`

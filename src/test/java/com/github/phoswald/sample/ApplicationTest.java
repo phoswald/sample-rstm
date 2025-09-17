@@ -171,7 +171,7 @@ class ApplicationTest {
             body(equalTo(""));
     }
 
-    private static class TestModule extends ApplicationModule {
+    static class TestModule extends ApplicationModule {
         @Override
         public ConfigProvider getConfigProvider() {
             return new ConfigProvider() {
