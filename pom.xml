@@ -11,6 +11,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>21</maven.compiler.release>
+    <maven.compiler.proc>full</maven.compiler.proc>
     <rstm.version>0.1.0-SNAPSHOT</rstm.version>
   </properties>
 
