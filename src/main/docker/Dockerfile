@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk add openjdk21-jre-headless
+RUN apk add openjdk25-jre-headless --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing
 
 ENV TZ                  Europe/Zurich
 ENV LANG                de_CH.UTF-8
