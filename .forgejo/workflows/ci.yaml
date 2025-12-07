@@ -1,0 +1,26 @@
+on: [push, pull_request]
+
+jobs:
+
+  ci-build:
+    runs-on: docker
+    container:
+      image: maven:3.9.11-eclipse-temurin-25-alpine      
+    steps:
+      - run: "cat /etc/os-release" # Alpine Linux v3.22
+      - run: id # uid=0(root) gid=0(root) groups=0(root),...
+      - run: pwd # /workspace/philip/rstm
+      - run: apk add nodejs
+      - run: node --version # v22.16.0
+      - run: mkdir -p ~/.m2 &&  echo "${{ secrets.M2_SETTINGS }}" > ~/.m2/settings.xml
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
+      - run: ls -la
+      - run: java -version # OpenJDK Runtime Environment Temurin-25.0.1+8 (build 25.0.1+8-LTS)
+      - run: mvn -version # Apache Maven 3.9.11
+      - run: mvn -B clean deploy 
