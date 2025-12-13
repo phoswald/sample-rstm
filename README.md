@@ -39,7 +39,7 @@ $ docker run -it --name sample-rstm --rm \
   -e APP_SAMPLE_CONFIG=ValueFromDockerRun \
   -e APP_JDBC_URL=jdbc:h2:/databases/task-db \
   -v ./databases/:/databases \
-  sample-rstm:0.1.0-SNAPSHOT
+  philip/sample-rstm:0.1.0-SNAPSHOT
 $ docker run -it --name sample-rstm --rm \
   -p 8080:8080 \
   -e APP_SAMPLE_CONFIG=ValueFromDockerRun \
@@ -48,7 +48,7 @@ $ docker run -it --name sample-rstm --rm \
   -e APP_JDBC_PASSWORD=mypassword \
   -e APP_JWT_ISSUER=http://localhost:8080 \
   -e APP_JWT_SECRET=mysecretforhmac \
-  sample-rstm:0.1.0-SNAPSHOT
+  philip/sample-rstm:0.1.0-SNAPSHOT
 ~~~
 
 # URLs

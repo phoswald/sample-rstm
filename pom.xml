@@ -131,9 +131,17 @@
             <version>0.47.0</version>
             <executions>
               <execution>
+                <id>docker-build</id>
                 <phase>package</phase>
                 <goals>
                   <goal>build</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>docker-push</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>push</goal>
                 </goals>
               </execution>
             </executions>
@@ -141,7 +149,7 @@
               <verbose>true</verbose>
               <images>
                 <image>
-                  <name>${project.artifactId}:${project.version}</name>
+                  <name>philip/${project.artifactId}:${project.version}</name>
                   <build>
                     <dockerFile>Dockerfile</dockerFile>
                     <assembly>
@@ -150,6 +158,7 @@
                   </build>
                 </image>
               </images>
+              <pushRegistry>code.phoswald.ch</pushRegistry> <!-- credentials from ~/.m2/settings.xml -->
             </configuration>
           </plugin>
         </plugins>

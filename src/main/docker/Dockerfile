@@ -1,6 +1,4 @@
-FROM alpine:latest
-
-RUN apk add --no-cache openjdk25-jre-headless --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing
+FROM code.phoswald.ch/philip/jre-25:latest
 
 ENV TZ                  Europe/Zurich
 ENV LANG                de_CH.UTF-8
