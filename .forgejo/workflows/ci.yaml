@@ -1,7 +1,6 @@
 on: [push, pull_request]
 
 jobs:
-
   ci-build:
     runs-on: docker
     container:
