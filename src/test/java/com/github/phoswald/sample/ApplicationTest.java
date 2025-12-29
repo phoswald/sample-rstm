@@ -165,4 +165,14 @@ class ApplicationTest {
             statusCode(404).
             body(equalTo(""));
     }
+
+    @Test
+    void getHealth() {
+        when().
+            get("/health").
+        then().
+            statusCode(200).
+            contentType("application/json").
+            body("status", equalTo("UP"));
+    }
 }

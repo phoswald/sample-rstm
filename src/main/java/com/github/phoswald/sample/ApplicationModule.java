@@ -31,7 +31,7 @@ public class ApplicationModule {
     public Application getApplication() {
         return new Application(getConfigProvider(), //
                 getSampleResource(), getSampleController(), getTaskResource(), getTaskController(), //
-                getIdentityProvider());
+                getIdentityProvider(), getHealthChecker());
     }
 
     public ConfigProvider getConfigProvider() {
@@ -61,18 +61,18 @@ public class ApplicationModule {
     public IdentityProvider getIdentityProvider() {
         ConfigProvider config = getConfigProvider();
         IdentityProvider localIdp = getLocalIdentityProvider();
-        Optional<String> oidcRedirctUri = config.getConfigProperty("app.oidc.redirect.uri");
-        if (oidcRedirctUri.isPresent()) {
+        Optional<String> oidcRedirectUri = config.getConfigProperty("app.oidc.redirect.uri");
+        if (oidcRedirectUri.isPresent()) {
             // Create a federated IDP that wraps the local IDP
             logger.info("Using federated IDP: OIDC");
-            OidcIdentityProvider federatedIdp = new OidcIdentityProvider(oidcRedirctUri.get(), localIdp);
+            OidcIdentityProvider federatedIdp = new OidcIdentityProvider(oidcRedirectUri.get(), localIdp);
             // Add Dex if configured
             Optional<String> dexClientId = config.getConfigProperty("app.oidc.dex.client.id");
             Optional<String> dexClientSecret = config.getConfigProperty("app.oidc.dex.client.secret");
             Optional<String> dexBaseUri = config.getConfigProperty("app.oidc.dex.base.uri");
             if (dexClientId.isPresent() && dexClientSecret.isPresent()) {
                 logger.info("Using OIDC provider: Dex");
-                federatedIdp.withDex(dexClientId.get(), dexClientSecret.get(), dexBaseUri.get());
+                federatedIdp.withDex(dexClientId.get(), dexClientSecret.get(), dexBaseUri.orElseThrow());
             }
             // Add Google if configured
             Optional<String> googleClientId = config.getConfigProperty("app.oidc.google.client.id");
@@ -87,7 +87,7 @@ public class ApplicationModule {
             Optional<String> microsoftTenantId = config.getConfigProperty("app.oidc.microsoft.tenant.id");
             if (microsoftClientId.isPresent() && microsoftClientSecret.isPresent()) {
                 logger.info("Using OIDC provider: Microsoft");
-                federatedIdp.withMicrosoft(microsoftClientId.get(), microsoftClientSecret.get(), microsoftTenantId.get());
+                federatedIdp.withMicrosoft(microsoftClientId.get(), microsoftClientSecret.get(), microsoftTenantId.orElseThrow());
             }
             // Add Facebook if configured
             Optional<String> facebookClientId = config.getConfigProperty("app.oidc.facebook.client.id");
@@ -123,6 +123,10 @@ public class ApplicationModule {
         } else {
             return new SimpleTokenProvider();
         }
+    }
+
+    private HealthChecker getHealthChecker() {
+        return new HealthChecker(this::getConnection);
     }
 
     public Connection getConnection() {
