@@ -175,4 +175,13 @@ class ApplicationTest {
             contentType("application/json").
             body("status", equalTo("UP"));
     }
+
+    @Test
+    void getMetrics() {
+        when().
+            get("/metrics").
+        then().
+            statusCode(200).
+            contentType("text/plain");
+    }
 }

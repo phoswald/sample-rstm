@@ -44,7 +44,8 @@ public class Application {
     private final TaskResource taskResource;
     private final TaskController taskController;
     private final IdentityProvider identityProvider;
-    private final HealthChecker healthChecker;
+    private final HealthCheckProvider healthCheckProvider;
+    private final MetricsProvider metricsProvider;
     private HttpServer httpServer;
  
     public Application( //
@@ -54,14 +55,16 @@ public class Application {
             TaskResource taskResource, //
             TaskController taskController, //
             IdentityProvider identityProvider, //
-            HealthChecker healthChecker) {
+            HealthCheckProvider healthCheckProvider, //
+            MetricsProvider metricsProvider) {
         this.port = Integer.parseInt(config.getConfigProperty("app.http.port").orElse("8080"));
         this.sampleResource = sampleResource;
         this.sampleController = sampleController;
         this.taskResource = taskResource;
         this.taskController = taskController;
         this.identityProvider = identityProvider;
-        this.healthChecker = healthChecker;
+        this.healthCheckProvider = healthCheckProvider;
+        this.metricsProvider = metricsProvider;
     }
 
     static void main() {
@@ -110,7 +113,8 @@ public class Application {
                         route("/tasks/{id}", //
                                 getHtml(this::handlePagesTasksByIdGetHtml), //
                                 postHtml(this::handlePagesTasksByIdPostHtml)))), //
-                healthChecker.createRoute() //
+                healthCheckProvider.createRoute(), //
+                metricsProvider.createRoute() //
         );
     }
 
