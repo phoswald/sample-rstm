@@ -15,7 +15,7 @@ class TestModule extends ApplicationModule {
             @Override
             public Optional<String> getConfigProperty(String name) {
                 return switch (name) {
-                    case "app.sample.config" -> Optional.of("Test Config Value");
+                    case "app.sample.config" -> Optional.of("ValueFromTestModule");
                     default -> super.getConfigProperty(name);
                 };
             }

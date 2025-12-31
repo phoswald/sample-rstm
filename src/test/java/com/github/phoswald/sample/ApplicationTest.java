@@ -56,7 +56,7 @@ class ApplicationTest {
             get("/app/rest/sample/config").
         then().
             statusCode(200).
-            body(equalTo("Test Config Value\n"));
+            body(equalTo("ValueFromTestModule\n"));
     }
 
     @Test
@@ -97,7 +97,7 @@ class ApplicationTest {
             body(startsWith("<!doctype html>"),
                 containsString("<title>Sample Page</title>"),
                 containsString("<span>Hello</span>, <span>username1</span>!"), // #greeting, username
-                containsString("<td>Test Config Value</td>")); // sampleConfig
+                containsString("<td>ValueFromTestModule</td>")); // sampleConfig
     }
 
     @Test
