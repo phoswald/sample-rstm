@@ -31,8 +31,8 @@ public class TaskController {
         }
     }
 
-    public String postTasksPage( //
-            String title, //
+    public String postTasksPage(
+            String title,
             String description) {
         logger.info("Received from with title=" + title + ", description=" + description);
         try (TaskRepository repository = repositoryFactory.get()) {
@@ -49,8 +49,8 @@ public class TaskController {
         return getTasksPage();
     }
 
-    public String getTaskPage( //
-            String id, //
+    public String getTaskPage(
+            String id,
             String action) {
         try (TaskRepository repository = repositoryFactory.get()) {
             Task task = repository.selectTaskById(id);
@@ -64,11 +64,11 @@ public class TaskController {
         }
     }
 
-    public Object postTaskPage( //
-            String id, //
-            String action, //
-            String title, //
-            String description, //
+    public Object postTaskPage(
+            String id,
+            String action,
+            String title,
+            String description,
             String done) {
         logger.info("Received from with id=" + id + ", action=" + action + ", title=" + title + ", description=" + description + ", done=" + done);
         try (TaskRepository repository = repositoryFactory.get()) {

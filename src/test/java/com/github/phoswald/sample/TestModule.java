@@ -24,7 +24,7 @@ class TestModule extends ApplicationModule {
 
     @Override
     public IdentityProvider getIdentityProvider() {
-        return new SimpleIdentityProvider() //
+        return new SimpleIdentityProvider()
                 .withUser("username1", "password1", List.of("user"));
     }
 }

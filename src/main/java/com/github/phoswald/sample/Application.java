@@ -47,15 +47,15 @@ public class Application {
     private final HealthCheckProvider healthCheckProvider;
     private final MetricsProvider metricsProvider;
     private HttpServer httpServer;
- 
-    public Application( //
-            ConfigProvider config, //
-            SampleResource sampleResource, //
-            SampleController sampleController, //
-            TaskResource taskResource, //
-            TaskController taskController, //
-            IdentityProvider identityProvider, //
-            HealthCheckProvider healthCheckProvider, //
+
+    public Application(
+            ConfigProvider config,
+            SampleResource sampleResource,
+            SampleController sampleController,
+            TaskResource taskResource,
+            TaskController taskController,
+            IdentityProvider identityProvider,
+            HealthCheckProvider healthCheckProvider,
             MetricsProvider metricsProvider) {
         this.port = Integer.parseInt(config.getConfigProperty("app.http.port").orElse("8080"));
         this.sampleResource = sampleResource;
@@ -74,47 +74,47 @@ public class Application {
 
     void start() {
         logger.info("sample-rstm is starting, port={}", port);
-        httpServer = new HttpServer(HttpServerConfig.builder() //
-                .httpPort(port) //
-                .filter(getRoutes()) //
-                .identityProvider(identityProvider) //
+        httpServer = new HttpServer(HttpServerConfig.builder()
+                .httpPort(port)
+                .filter(getRoutes())
+                .identityProvider(identityProvider)
                 .build());
     }
-    
+
     private HttpFilter getRoutes() {
-        return combine( //
-                route("/", //
-                        resources("/html/")), //
-                route("/login", login()), //
-                route("/oauth/callback", oidc()), //
-                route("/app/rest/sample/time", //
-                        get(_ -> HttpResponse.text(200, sampleResource.getTime()))), //
-                route("/app/rest/sample/config", //
-                        get(_ -> HttpResponse.text(200, sampleResource.getConfig()))), //
-                route("/app/rest/sample/echo-xml", //
-                        post(this::handleRestSampleEchoXml)), //
-                route("/app/rest/sample/echo-json", //
-                        post(this::handleRestSampleEchoJson)), //
-                route("/app/rest/sample/me", auth("user", //
-                        get(req -> HttpResponse.text(200, sampleResource.getMe(req.principal()))))), //
-                route("/app/rest/tasks", //
-                        getRest(json(), this::handleRestTasksGet), //
-                        postRest(json(), Task.class, this::handleRestTasksPost)), //
-                route("/app/rest/tasks/{id}", //
-                        getRest(json(), this::handleRestTasksByIdGet), //
-                        putRest(json(), Task.class, this::handleRestTasksByIdPut), //
-                        delete(this::handleRestTasksByIdDelete)), //
-                route("/app/pages", auth("user", //
-                        route("/sample", //
-                                get(this::handlePagesSampleGet)), //
-                        route("/tasks", //
-                                getHtml(this::handlePagesTasksGetHtml), //
-                                postHtml(this::handlePagesTasksPostHtml)), //
-                        route("/tasks/{id}", //
-                                getHtml(this::handlePagesTasksByIdGetHtml), //
-                                postHtml(this::handlePagesTasksByIdPostHtml)))), //
-                healthCheckProvider.createRoute(), //
-                metricsProvider.createRoute() //
+        return combine(
+                route("/",
+                        resources("/html/")),
+                route("/login", login()),
+                route("/oauth/callback", oidc()),
+                route("/app/rest/sample/time",
+                        get(_ -> HttpResponse.text(200, sampleResource.getTime()))),
+                route("/app/rest/sample/config",
+                        get(_ -> HttpResponse.text(200, sampleResource.getConfig()))),
+                route("/app/rest/sample/echo-xml",
+                        post(this::handleRestSampleEchoXml)),
+                route("/app/rest/sample/echo-json",
+                        post(this::handleRestSampleEchoJson)),
+                route("/app/rest/sample/me", auth("user",
+                        get(req -> HttpResponse.text(200, sampleResource.getMe(req.principal()))))),
+                route("/app/rest/tasks",
+                        getRest(json(), this::handleRestTasksGet),
+                        postRest(json(), Task.class, this::handleRestTasksPost)),
+                route("/app/rest/tasks/{id}",
+                        getRest(json(), this::handleRestTasksByIdGet),
+                        putRest(json(), Task.class, this::handleRestTasksByIdPut),
+                        delete(this::handleRestTasksByIdDelete)),
+                route("/app/pages", auth("user",
+                        route("/sample",
+                                get(this::handlePagesSampleGet)),
+                        route("/tasks",
+                                getHtml(this::handlePagesTasksGetHtml),
+                                postHtml(this::handlePagesTasksPostHtml)),
+                        route("/tasks/{id}",
+                                getHtml(this::handlePagesTasksByIdGetHtml),
+                                postHtml(this::handlePagesTasksByIdPostHtml)))),
+                healthCheckProvider.createRoute(),
+                metricsProvider.createRoute()
         );
     }
 
@@ -155,23 +155,23 @@ public class Application {
     }
 
     private String handlePagesTasksPostHtml(HttpRequest req) {
-        return taskController.postTasksPage( //
-                req.formParam("title").orElseThrow(), //
+        return taskController.postTasksPage(
+                req.formParam("title").orElseThrow(),
                 req.formParam("description").orElse(null));
     }
 
     private String handlePagesTasksByIdGetHtml(HttpRequest req) {
-        return taskController.getTaskPage( //
-                req.pathParam("id").orElseThrow(), //
+        return taskController.getTaskPage(
+                req.pathParam("id").orElseThrow(),
                 req.queryParam("action").orElse(null));
     }
 
     private Object handlePagesTasksByIdPostHtml(HttpRequest req) {
-        return taskController.postTaskPage( //
-                req.pathParam("id").orElseThrow(), //
-                req.formParam("action").orElseThrow(), //
-                req.formParam("title").orElseThrow(), //
-                req.formParam("description").orElseThrow(), //
+        return taskController.postTaskPage(
+                req.pathParam("id").orElseThrow(),
+                req.formParam("action").orElseThrow(),
+                req.formParam("title").orElseThrow(),
+                req.formParam("description").orElseThrow(),
                 req.formParam("done").orElse(null));
     }
 

@@ -33,8 +33,8 @@ public class ApplicationModule {
     private final MetricsProvider metricsProvider = new MetricsProvider(new MetricsRegistry(), healthCheckProvider.getAllChecks());
 
     public Application getApplication() {
-        return new Application(getConfigProvider(), //
-                getSampleResource(), getSampleController(), getTaskResource(), getTaskController(), //
+        return new Application(getConfigProvider(),
+                getSampleResource(), getSampleController(), getTaskResource(), getTaskController(),
                 getIdentityProvider(), healthCheckProvider, metricsProvider);
     }
 
