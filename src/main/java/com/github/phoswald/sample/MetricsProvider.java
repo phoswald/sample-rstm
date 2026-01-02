@@ -30,7 +30,7 @@ class MetricsProvider {
     }
 
     private void registerHealthMetrics(List<HealthCheck> healthChecks) {
-        for(var healthCheck : healthChecks) {
+        for (var healthCheck : healthChecks) {
             registry.registerGauge("health_check", () -> healthCheck.function().invoke() ? 1 : 0,
                     new MetricLabel("id", Integer.toString(healthCheck.id())),
                     new MetricLabel("name", healthCheck.name()));

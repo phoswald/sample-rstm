@@ -38,7 +38,8 @@ class ApplicationTest {
                 .then()
                 .statusCode(200)
                 .contentType("text/html")
-                .body(startsWith("<!doctype html>"), containsString("<title>RSTM Sample Service</title>"));
+                .body(startsWith("<!doctype html>"))
+                .body(containsString("<title>RSTM Sample Service</title>"));
     }
 
     @Test
@@ -97,19 +98,16 @@ class ApplicationTest {
     @Test
     void getSamplePage() {
         given()
-                .auth()
-                .preemptive()
-                .basic("username1", "password1")
+                .auth().preemptive().basic("username1", "password1")
                 .when()
                 .get("/app/pages/sample")
                 .then()
                 .statusCode(200)
                 .contentType("text/html")
-                .body(
-                        startsWith("<!doctype html>"),
-                        containsString("<title>Sample Page</title>"),
-                        containsString("<span>Hello</span>, <span>username1</span>!"), // #greeting, username
-                        containsString("<td>ValueFromTestModule</td>")); // sampleConfig
+                .body(startsWith("<!doctype html>"))
+                .body(containsString("<title>Sample Page</title>"))
+                .body(containsString("<span>Hello</span>, <span>username1</span>!")) // #greeting, username
+                .body(containsString("<td>ValueFromTestModule</td>")); // sampleConfig
     }
 
     @Test
@@ -151,7 +149,8 @@ class ApplicationTest {
 
         when()
                 .get("/app/rest/tasks/" + taskId.get())
-                .then().statusCode(200)
+                .then()
+                .statusCode(200)
                 .contentType("application/json")
                 .body("taskId", equalTo(taskId.get()))
                 .body("userId", equalTo("guest"))

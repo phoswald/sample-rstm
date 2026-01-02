@@ -34,9 +34,9 @@ class HealthCheckProvider {
     }
 
     private boolean checkDatabase() {
-        try(Connection connection = connectionFactory.get()) {
+        try (Connection connection = connectionFactory.get()) {
             return connection.isValid(1);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }

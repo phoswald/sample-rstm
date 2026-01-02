@@ -57,7 +57,7 @@ class ApplicationUiTest {
 
             // assertTrue(page.getByText("APP_SAMPLE_CONFIX").isVisible());
 
-            Thread.sleep(5*1000); // TODO (playwright) remove sleep, test more stuff
+            Thread.sleep(5 * 1000); // TODO (playwright) remove sleep, test more stuff
         }
     }
 }
