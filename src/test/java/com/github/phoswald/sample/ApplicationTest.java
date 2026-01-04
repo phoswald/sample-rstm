@@ -159,7 +159,7 @@ class ApplicationTest {
         when()
                 .delete("/app/rest/tasks/" + taskId.get())
                 .then()
-                .statusCode(200)
+                .statusCode(204)
                 .body(equalTo(""));
 
         when()

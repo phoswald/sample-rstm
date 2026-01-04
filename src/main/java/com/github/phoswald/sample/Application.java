@@ -1,16 +1,15 @@
 package com.github.phoswald.sample;
 
-import static com.github.phoswald.rstm.http.codec.json.JsonCodec.json;
-import static com.github.phoswald.rstm.http.codec.xml.XmlCodec.xml;
+import static com.github.phoswald.rstm.http.codec.JsonCodec.json;
+import static com.github.phoswald.rstm.http.codec.TextCodec.text;
+import static com.github.phoswald.rstm.http.codec.XmlCodec.xml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.auth;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.combine;
-import static com.github.phoswald.rstm.http.server.HttpServerConfig.delete;
-import static com.github.phoswald.rstm.http.server.HttpServerConfig.get;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.deleteRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.login;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.oidc;
-import static com.github.phoswald.rstm.http.server.HttpServerConfig.post;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.putRest;
@@ -21,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
-import com.github.phoswald.rstm.http.HttpRequest;
-import com.github.phoswald.rstm.http.HttpResponse;
 import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
@@ -32,7 +29,6 @@ import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.Task;
 import com.github.phoswald.sample.task.TaskController;
-import com.github.phoswald.sample.task.TaskList;
 import com.github.phoswald.sample.task.TaskResource;
 
 public class Application {
@@ -88,91 +84,34 @@ public class Application {
                 route("/login", login()),
                 route("/oauth/callback", oidc()),
                 route("/app/rest/sample/time",
-                        get(_ -> HttpResponse.text(200, sampleResource.getTime()))),
+                        getRest(text(), sampleResource::getTime)),
                 route("/app/rest/sample/config",
-                        get(_ -> HttpResponse.text(200, sampleResource.getConfig()))),
+                        getRest(text(), sampleResource::getConfig)),
                 route("/app/rest/sample/echo-xml",
-                        post(this::handleRestSampleEchoXml)),
+                        postRest(xml(), EchoRequest.class, sampleResource::postEcho)),
                 route("/app/rest/sample/echo-json",
-                        post(this::handleRestSampleEchoJson)),
+                        postRest(json(), EchoRequest.class, sampleResource::postEcho)),
                 route("/app/rest/sample/me", auth("user",
-                        get(req -> HttpResponse.text(200, sampleResource.getMe(req.principal()))))),
+                        getRest(text(), req -> sampleResource.getMe(req.principal())))),
                 route("/app/rest/tasks",
-                        getRest(json(), this::handleRestTasksGet),
-                        postRest(json(), Task.class, this::handleRestTasksPost)),
+                        getRest(json(),  taskResource::getTasks),
+                        postRest(json(), Task.class, taskResource::postTasks)),
                 route("/app/rest/tasks/{id}",
-                        getRest(json(), this::handleRestTasksByIdGet),
-                        putRest(json(), Task.class, this::handleRestTasksByIdPut),
-                        delete(this::handleRestTasksByIdDelete)),
+                        getRest(json(), TaskResource.IdParams.class, taskResource::getTask),
+                        putRest(json(), TaskResource.IdParams.class, Task.class, taskResource::putTask),
+                        deleteRest(json(), TaskResource.IdParams.class, taskResource::deleteTask)),
                 route("/app/pages", auth("user",
                         route("/sample",
-                                get(this::handlePagesSampleGet)),
+                                getHtml(req -> sampleController.getSamplePage(req.principal()))),
                         route("/tasks",
-                                getHtml(this::handlePagesTasksGetHtml),
-                                postHtml(this::handlePagesTasksPostHtml)),
+                                getHtml(taskController::getTasksPage),
+                                postHtml(TaskController.PostParams.class, taskController::postTasksPage)),
                         route("/tasks/{id}",
-                                getHtml(this::handlePagesTasksByIdGetHtml),
-                                postHtml(this::handlePagesTasksByIdPostHtml)))),
+                                getHtml(TaskController.IdParams.class, taskController::getTaskPage),
+                                postHtml(TaskController.IdPostParams.class, taskController::postTaskPage)))),
                 healthCheckProvider.createRoute(),
                 metricsProvider.createRoute()
         );
-    }
-
-    private HttpResponse handleRestSampleEchoXml(HttpRequest req) {
-        return HttpResponse.body(200, xml(), sampleResource.postEcho(req.body(xml(), EchoRequest.class)));
-    }
-
-    private HttpResponse handleRestSampleEchoJson(HttpRequest req) {
-        return HttpResponse.body(200, json(), sampleResource.postEcho(req.body(json(), EchoRequest.class)));
-    }
-
-    private TaskList handleRestTasksGet(HttpRequest req) {
-        return taskResource.getTasks();
-    }
-
-    private Task handleRestTasksPost(HttpRequest req, Task reqBody) {
-        return taskResource.postTasks(reqBody);
-    }
-
-    private Task handleRestTasksByIdGet(HttpRequest req) {
-        return taskResource.getTask(req.pathParam("id").orElseThrow());
-    }
-
-    private Task handleRestTasksByIdPut(HttpRequest req, Task reqBody) {
-        return taskResource.putTask(req.pathParam("id").orElseThrow(), reqBody);
-    }
-
-    private HttpResponse handleRestTasksByIdDelete(HttpRequest req) {
-        return HttpResponse.text(200, taskResource.deleteTask(req.pathParam("id").orElseThrow()));
-    }
-
-    private HttpResponse handlePagesSampleGet(HttpRequest req) {
-        return HttpResponse.html(200, sampleController.getSamplePage(req.principal()));
-    }
-
-    private String handlePagesTasksGetHtml(HttpRequest req) {
-        return taskController.getTasksPage();
-    }
-
-    private String handlePagesTasksPostHtml(HttpRequest req) {
-        return taskController.postTasksPage(
-                req.formParam("title").orElseThrow(),
-                req.formParam("description").orElse(null));
-    }
-
-    private String handlePagesTasksByIdGetHtml(HttpRequest req) {
-        return taskController.getTaskPage(
-                req.pathParam("id").orElseThrow(),
-                req.queryParam("action").orElse(null));
-    }
-
-    private Object handlePagesTasksByIdPostHtml(HttpRequest req) {
-        return taskController.postTaskPage(
-                req.pathParam("id").orElseThrow(),
-                req.formParam("action").orElseThrow(),
-                req.formParam("title").orElseThrow(),
-                req.formParam("description").orElseThrow(),
-                req.formParam("done").orElse(null));
     }
 
     void stop() {

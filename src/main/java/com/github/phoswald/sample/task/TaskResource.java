@@ -34,16 +34,16 @@ public class TaskResource {
         }
     }
 
-    public Task getTask(String id) {
+    public Task getTask(IdParams params) {
         try (TaskRepository repository = repositoryFactory.get()) {
-            Task task = repository.selectTaskById(id);
+            Task task = repository.selectTaskById(params.id());
             return task;
         }
     }
 
-    public Task putTask(String id, Task request) {
+    public Task putTask(IdParams params, Task request) {
         try (TaskRepository repository = repositoryFactory.get()) {
-            Task task = repository.selectTaskById(id);
+            Task task = repository.selectTaskById(params.id());
             task = task.toBuilder()
                     .timestamp(Instant.now())
                     .title(request.title())
@@ -55,11 +55,13 @@ public class TaskResource {
         }
     }
 
-    public String deleteTask(String id) {
+    public String deleteTask(IdParams params) {
         try (TaskRepository repository = repositoryFactory.get()) {
-            Task task = repository.selectTaskById(id);
+            Task task = repository.selectTaskById(params.id());
             repository.deleteTask(task);
             return "";
         }
     }
+
+    public record IdParams(String id) { }
 }

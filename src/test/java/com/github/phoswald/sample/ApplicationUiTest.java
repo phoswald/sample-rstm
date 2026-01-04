@@ -34,9 +34,8 @@ class ApplicationUiTest {
 
     @Test
     void samplePage() throws InterruptedException {
-        try (Playwright playwright = Playwright.create()) {
-            Browser browser = playwright.chromium().launch(new LaunchOptions().setHeadless(false));
-
+        var opts = new LaunchOptions().setHeadless(false);
+        try (Playwright playwright = Playwright.create(); Browser browser = playwright.chromium().launch(opts)) {
             Page page = browser.newPage();
             page.navigate("http://localhost:8080/");
             assertEquals("RSTM Sample Service", page.title());

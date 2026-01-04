@@ -1,6 +1,5 @@
 package com.github.phoswald.sample.task;
 
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -31,17 +30,15 @@ public class TaskController {
         }
     }
 
-    public String postTasksPage(
-            String title,
-            String description) {
-        logger.info("Received from with title=" + title + ", description=" + description);
+    public String postTasksPage(PostParams params) {
+        logger.info("Received from with title=" + params.title() + ", description=" + params.description());
         try (TaskRepository repository = repositoryFactory.get()) {
             Task task = Task.builder()
                     .taskId(Task.newTaskId())
                     .userId("guest")
                     .timestamp(Instant.now())
-                    .title(title)
-                    .description(description)
+                    .title(params.title())
+                    .description(params.description())
                     .done(false)
                     .build();
             repository.createTask(task);
@@ -49,12 +46,10 @@ public class TaskController {
         return getTasksPage();
     }
 
-    public String getTaskPage(
-            String id,
-            String action) {
+    public String getTaskPage(IdParams params) {
         try (TaskRepository repository = repositoryFactory.get()) {
-            Task task = repository.selectTaskById(id);
-            if (Objects.equals(action, "edit")) {
+            Task task = repository.selectTaskById(params.id());
+            if (Objects.equals(params.action(), "edit")) {
                 Template<TaskViewModel> template = templateEngine.compile(TaskViewModel.class, "task-edit");
                 return template.evaluate(TaskViewModel.ofTask(task));
             } else {
@@ -64,29 +59,30 @@ public class TaskController {
         }
     }
 
-    public Object postTaskPage(
-            String id,
-            String action,
-            String title,
-            String description,
-            String done) {
-        logger.info("Received from with id=" + id + ", action=" + action + ", title=" + title + ", description=" + description + ", done=" + done);
+    public String postTaskPage(IdPostParams params) {
+        logger.info("Received from with id=" + params.id() + ", action=" + params.action() + ", title=" + params.title() + ", description=" + params.description() + ", done=" + params.done());
         try (TaskRepository repository = repositoryFactory.get()) {
-            Task task = repository.selectTaskById(id);
-            if (Objects.equals(action, "delete")) {
+            Task task = repository.selectTaskById(params.id());
+            if (Objects.equals(params.action(), "delete")) {
                 repository.deleteTask(task);
-                return Paths.get("/app/pages/tasks");
+                return "redirect=/app/pages/tasks";
             }
-            if (Objects.equals(action, "store")) {
+            if (Objects.equals(params.action(), "store")) {
                 task = task.toBuilder()
                         .timestamp(Instant.now())
-                        .title(title)
-                        .description(description)
-                        .done(Objects.equals(done, "on"))
+                        .title(params.title())
+                        .description(params.description())
+                        .done(Objects.equals(params.done(), "on"))
                         .build();
                 repository.updateTask(task);
             }
         }
-        return getTaskPage(id, null);
+        return getTaskPage(new IdParams(params.action(), params.id()));
     }
+
+    public record PostParams(String title, String description) { }
+
+    public record IdParams(String action, String id) { }
+
+    public record IdPostParams(String action, String id, String title, String description, String done) { }
 }
