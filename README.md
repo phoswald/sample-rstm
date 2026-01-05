@@ -77,11 +77,18 @@ $ curl 'http://localhost:8080/app/rest/tasks/5b89f266-c566-4d1f-8545-451bc443cf2
 
 ## Database:
 
-See [SQL DDL](src/main/resources/schema.postgresql.sql) for Postgres.
+See SQL DDL for [Postgres](src/main/resources/schema.postgresql.sql)
+and [H2](src/main/resources/schema.h2.sql).
+
+Start H2 Console in current directory (use JDBC URL with relative path, log in with `sa:sa`):
+
+~~~
+$ java -jar target/sample-rstm-*-dist/lib/h2-*.jar
+~~~
 
 Create passwords for form-based authentication (table `user_`):
 
 ~~~
 $ java -cp $(echo target/sample-rstm-*-dist/lib)/"*" \
-  com.github.phoswald.rstm.security.jdbc.PasswordUtility
+  com.github.phoswald.rstm.security.password.PasswordUtility
 ~~~

@@ -6,3 +6,9 @@ CREATE TABLE IF NOT EXISTS task_ (
   description_ VARCHAR(255),
   done_        BOOLEAN
 );
+
+CREATE TABLE IF NOT EXISTS user_ (
+  username_ VARCHAR(255) PRIMARY KEY NOT NULL,
+  password_ VARCHAR(255),
+  roles_    VARCHAR(255)
+);
