@@ -4,31 +4,36 @@ import static com.github.phoswald.rstm.http.codec.JsonCodec.json;
 import static com.github.phoswald.rstm.http.codec.TextCodec.text;
 import static com.github.phoswald.rstm.http.codec.XmlCodec.xml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.auth;
-import static com.github.phoswald.rstm.http.server.HttpServerConfig.combine;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.deleteRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.login;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.oidc;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.openapi;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.putRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.resources;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.route;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
+import com.github.phoswald.rstm.http.openapi.OpenApiConfig;
 import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.rstm.security.IdentityProvider;
 import com.github.phoswald.sample.sample.EchoRequest;
+import com.github.phoswald.sample.sample.EchoResponse;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.Task;
 import com.github.phoswald.sample.task.TaskController;
+import com.github.phoswald.sample.task.TaskList;
 import com.github.phoswald.sample.task.TaskResource;
 
 public class Application {
@@ -78,28 +83,33 @@ public class Application {
     }
 
     private HttpFilter getRoutes() {
-        return combine(
-                route("/",
-                        resources("/html/")),
+        OpenApiConfig openApiConfig = OpenApiConfig.builder()
+                .title("sample-rstm")
+                .description("OpenAPI for RSTM Sample Service")
+                .version("0.1.0-SNAPSHOT")
+                .urls(List.of("http://localhost:8080", "https://phoswald.ch/rstm"))
+                .build();
+        return openapi(openApiConfig,
+                resources("/html/"),
                 route("/login", login()),
                 route("/oauth/callback", oidc()),
                 route("/app/rest/sample/time",
-                        getRest(text(), sampleResource::getTime)),
+                        getRest(text(), String.class, sampleResource::getTime)),
                 route("/app/rest/sample/config",
-                        getRest(text(), sampleResource::getConfig)),
+                        getRest(text(), String.class, sampleResource::getConfig)),
                 route("/app/rest/sample/echo-xml",
-                        postRest(xml(), EchoRequest.class, sampleResource::postEcho)),
+                        postRest(xml(), EchoRequest.class, EchoResponse.class, sampleResource::postEcho)),
                 route("/app/rest/sample/echo-json",
-                        postRest(json(), EchoRequest.class, sampleResource::postEcho)),
+                        postRest(json(), EchoRequest.class, EchoResponse.class, sampleResource::postEcho)),
                 route("/app/rest/sample/me", auth("user",
-                        getRest(text(), req -> sampleResource.getMe(req.principal())))),
+                        getRest(text(), String.class, req -> sampleResource.getMe(req.principal())))),
                 route("/app/rest/tasks",
-                        getRest(json(),  taskResource::getTasks),
-                        postRest(json(), Task.class, taskResource::postTasks)),
+                        getRest(json(), TaskList.class, taskResource::getTasks),
+                        postRest(json(), Task.class, Task.class, taskResource::postTasks)),
                 route("/app/rest/tasks/{id}",
-                        getRest(json(), TaskResource.IdParams.class, taskResource::getTask),
-                        putRest(json(), TaskResource.IdParams.class, Task.class, taskResource::putTask),
-                        deleteRest(json(), TaskResource.IdParams.class, taskResource::deleteTask)),
+                        getRest(json(), TaskResource.IdParams.class, Task.class, taskResource::getTask),
+                        putRest(json(), TaskResource.IdParams.class, Task.class, Task.class, taskResource::putTask),
+                        deleteRest(json(), TaskResource.IdParams.class, String.class, taskResource::deleteTask)),
                 route("/app/pages", auth("user",
                         route("/sample",
                                 getHtml(req -> sampleController.getSamplePage(req.principal()))),
