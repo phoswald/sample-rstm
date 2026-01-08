@@ -59,7 +59,7 @@ $ docker run -it --name sample-rstm --rm \
 $ curl 'http://localhost:8080/app/rest/sample/time' -i
 $ curl 'http://localhost:8080/app/rest/sample/config' -i
 $ curl 'http://localhost:8080/app/rest/sample/echo-xml' -i -X POST \
-  -H 'content-type: text/xml' \
+  -H 'content-type: application/xml' \
   -d '<echoRequest><input>This is CURL</input></echoRequest>'
 $ curl 'http://localhost:8080/app/rest/sample/echo-json' -i -X POST \
   -H 'content-type: application/json' \

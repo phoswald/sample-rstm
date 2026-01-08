@@ -63,13 +63,13 @@ class ApplicationTest {
     @Test
     void postEchoXml() {
         given()
-                .contentType("text/xml")
+                .contentType("application/xml")
                 .body("<echoRequest><input>Test Input</input></echoRequest>")
                 .when()
                 .post("/app/rest/sample/echo-xml")
                 .then()
                 .statusCode(200)
-                .contentType("text/xml")
+                .contentType("application/xml")
                 .body(equalTo("""
                         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                         <echoResponse>
