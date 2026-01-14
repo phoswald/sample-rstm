@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.phoswald.rstm.config.ConfigProvider;
+import com.github.phoswald.rstm.http.health.HealthCheckRegistry;
+import com.github.phoswald.rstm.http.metrics.MetricsRegistry;
 import com.github.phoswald.rstm.http.openapi.OpenApiConfig;
 import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
@@ -45,8 +47,8 @@ public class Application {
     private final TaskResource taskResource;
     private final TaskController taskController;
     private final IdentityProvider identityProvider;
-    private final HealthCheckProvider healthCheckProvider;
-    private final MetricsProvider metricsProvider;
+    private final HealthCheckRegistry healthCheckRegistry;
+    private final MetricsRegistry metricsRegistry;
     private HttpServer httpServer;
 
     public Application(
@@ -56,16 +58,16 @@ public class Application {
             TaskResource taskResource,
             TaskController taskController,
             IdentityProvider identityProvider,
-            HealthCheckProvider healthCheckProvider,
-            MetricsProvider metricsProvider) {
+            HealthCheckRegistry healthCheckRegistry,
+            MetricsRegistry metricsRegistry) {
         this.port = Integer.parseInt(config.getConfigProperty("app.http.port").orElse("8080"));
         this.sampleResource = sampleResource;
         this.sampleController = sampleController;
         this.taskResource = taskResource;
         this.taskController = taskController;
         this.identityProvider = identityProvider;
-        this.healthCheckProvider = healthCheckProvider;
-        this.metricsProvider = metricsProvider;
+        this.healthCheckRegistry = healthCheckRegistry;
+        this.metricsRegistry = metricsRegistry;
     }
 
     static void main() {
@@ -119,8 +121,8 @@ public class Application {
                         route("/tasks/{id}",
                                 getHtml(TaskController.IdParams.class, taskController::getTaskPage),
                                 postHtml(TaskController.IdPostParams.class, taskController::postTaskPage)))),
-                healthCheckProvider.createRoute(),
-                metricsProvider.createRoute()
+                healthCheckRegistry.createRoute(),
+                metricsRegistry.createRoute()
         );
     }
 

@@ -29,13 +29,15 @@ import com.github.phoswald.sample.task.TaskResource;
 public class ApplicationModule {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final HealthCheckProvider healthCheckProvider = new HealthCheckProvider(new HealthCheckRegistry(), this::getConnection);
-    private final MetricsProvider metricsProvider = new MetricsProvider(new MetricsRegistry(), healthCheckProvider.getAllChecks());
+    private final HealthCheckRegistry healthCheckRegistry = new HealthCheckRegistry();
+    private final MetricsRegistry metricsRegistry = new MetricsRegistry();
+    private final HealthCheckProvider healthCheckProvider = new HealthCheckProvider(healthCheckRegistry, this::getConnection);
+    private final MetricsProvider metricsProvider = new MetricsProvider(metricsRegistry, healthCheckProvider.getAllChecks());
 
     public Application getApplication() {
         return new Application(getConfigProvider(),
                 getSampleResource(), getSampleController(), getTaskResource(), getTaskController(),
-                getIdentityProvider(), healthCheckProvider, metricsProvider);
+                getIdentityProvider(), healthCheckRegistry, metricsRegistry);
     }
 
     public ConfigProvider getConfigProvider() {

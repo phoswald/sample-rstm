@@ -5,7 +5,6 @@ import java.util.List;
 import com.github.phoswald.rstm.http.health.HealthCheck;
 import com.github.phoswald.rstm.http.metrics.MetricLabel;
 import com.github.phoswald.rstm.http.metrics.MetricsRegistry;
-import com.github.phoswald.rstm.http.server.HttpFilter;
 
 class MetricsProvider {
 
@@ -15,10 +14,6 @@ class MetricsProvider {
         this.registry = registry;
         registerHeapMetrics();
         registerHealthMetrics(healthChecks);
-    }
-
-    HttpFilter createRoute() {
-        return registry.createRoute();
     }
 
     private void registerHeapMetrics() {

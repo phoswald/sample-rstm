@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 
 import com.github.phoswald.rstm.http.health.HealthCheck;
 import com.github.phoswald.rstm.http.health.HealthCheckRegistry;
-import com.github.phoswald.rstm.http.server.HttpFilter;
 
 class HealthCheckProvider {
 
@@ -23,10 +22,6 @@ class HealthCheckProvider {
 
     List<HealthCheck> getAllChecks() {
         return List.copyOf(checks);
-    }
-
-    HttpFilter createRoute() {
-        return registry.createRoute();
     }
 
     private void registerChecks() {
