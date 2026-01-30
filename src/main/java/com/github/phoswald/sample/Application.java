@@ -4,12 +4,12 @@ import static com.github.phoswald.rstm.http.codec.JsonCodec.json;
 import static com.github.phoswald.rstm.http.codec.TextCodec.text;
 import static com.github.phoswald.rstm.http.codec.XmlCodec.xml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.auth;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.combine;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.deleteRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.getRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.login;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.oidc;
-import static com.github.phoswald.rstm.http.server.HttpServerConfig.openapi;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postHtml;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.postRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.putRest;
@@ -25,6 +25,7 @@ import com.github.phoswald.rstm.config.ConfigProvider;
 import com.github.phoswald.rstm.http.health.HealthCheckRegistry;
 import com.github.phoswald.rstm.http.metrics.MetricsRegistry;
 import com.github.phoswald.rstm.http.openapi.OpenApiConfig;
+import com.github.phoswald.rstm.http.openapi.OpenApiProvider;
 import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
@@ -49,6 +50,7 @@ public class Application {
     private final IdentityProvider identityProvider;
     private final HealthCheckRegistry healthCheckRegistry;
     private final MetricsRegistry metricsRegistry;
+    private final OpenApiProvider openApiProvider;
     private HttpServer httpServer;
 
     public Application(
@@ -68,6 +70,12 @@ public class Application {
         this.identityProvider = identityProvider;
         this.healthCheckRegistry = healthCheckRegistry;
         this.metricsRegistry = metricsRegistry;
+        this.openApiProvider = new OpenApiProvider(OpenApiConfig.builder()
+                .title("sample-rstm")
+                .description("OpenAPI for RSTM Sample Service")
+                .version("0.1.0-SNAPSHOT")
+                .urls(List.of("http://localhost:8080", "https://phoswald.ch/rstm"))
+                .build());
     }
 
     static void main() {
@@ -85,13 +93,7 @@ public class Application {
     }
 
     private HttpFilter getRoutes() {
-        OpenApiConfig openApiConfig = OpenApiConfig.builder()
-                .title("sample-rstm")
-                .description("OpenAPI for RSTM Sample Service")
-                .version("0.1.0-SNAPSHOT")
-                .urls(List.of("http://localhost:8080", "https://phoswald.ch/rstm"))
-                .build();
-        return openapi(openApiConfig,
+        return combine(
                 resources("/html/"),
                 route("/login", login()),
                 route("/oauth/callback", oidc()),
@@ -122,7 +124,8 @@ public class Application {
                                 getHtml(TaskController.IdParams.class, taskController::getTaskPage),
                                 postHtml(TaskController.IdPostParams.class, taskController::postTaskPage)))),
                 healthCheckRegistry.createRoute(),
-                metricsRegistry.createRoute()
+                metricsRegistry.createRoute(),
+                openApiProvider.createRoutes()
         );
     }
 
