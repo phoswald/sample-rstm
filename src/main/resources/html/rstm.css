@@ -229,12 +229,12 @@ table td {
 
 table th[align="center"],
 table td[align="center"] {
-  text-align: center;
+    text-align: center;
 }
 
 table th[align="right"],
 table td[align="right"] {
-  text-align: right;
+    text-align: right;
 }
 
 table th {
@@ -280,6 +280,7 @@ form.rstm-form-grid > label {
     form.rstm-form-grid > textarea,
     form.rstm-form-grid > select,
     form.rstm-form-grid > button,
+    form.rstm-form-grid > a,
     form.rstm-form-grid > span {
         grid-column: 2;
     }
@@ -334,6 +335,7 @@ input[type="file"] {
 
 /* ****** Form or Link: Button ****** */
 
+input[type="submit"],
 button,
 a.rstm-button {
     display: inline-block;
@@ -342,13 +344,15 @@ a.rstm-button {
     padding: 4px 12px;
     color: var(--text-bgcolor);
     background-color: var(--button-color);
+    font-family: var(--font);
     font-size: 13px;
-    cursor: pointer;
     text-decoration: none;
+    cursor: pointer;
     align-self: start; /* don't stretch vertically */
     justify-self: start; /* don't stretch horizontally */
 }
 
+input[type="submit"]:focus,
 button:hover,
 a.rstm-button:hover {
     border-color: var(--button-hover-color);
@@ -367,12 +371,20 @@ label.rstm-button-outline {
     font-size: 13px;
     text-decoration: none;
     cursor: pointer;
+    align-self: start; /* don't stretch vertically */
+    justify-self: start; /* don't stretch horizontally */
 }
 
 a.rstm-button-outline:hover,
 button.rstm-button-outline:hover,
 label.rstm-button-outline:hover {
     background-color: var(--hover-bgcolor);
+}
+
+.rstm-button-outline img {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
 }
 
 /* ****** Link: Inputgroup ****** */
@@ -405,6 +417,16 @@ label.rstm-button-outline:hover {
 
 .rstm-inputgroup > :hover {
     background-color: var(--hover-bgcolor);
+}
+
+/* ****** Box ****** */
+
+.rstm-box {
+    margin: 0 auto 0 auto;
+    border-radius: 12px;
+    padding: 16px;
+    width: max-content;
+    background-color: var(--table-bgcolor);
 }
 
 /* ****** Icon, Avatar ****** */
