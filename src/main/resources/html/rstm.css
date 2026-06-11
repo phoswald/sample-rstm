@@ -299,26 +299,15 @@ select {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 4px 12px;
-    color: var(--text-color);
-    background-color: var(--text-bgcolor); /* for <select> */
-    font-family: var(--font);
-    font-size: 13px;
+    height: 30px;
+    background-color: var(--text-bgcolor); /* override browser defaults again */
+    font-family: var(--font); /* override browser defaults again */
+    font-size: 14px; /* override browser defaults again */
 }
 
 input[type="date"],
 input[type="time"] {
-    width: 120px;
-}
-
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="date"]:focus,
-input[type="time"]:focus,
-textarea:focus,
-select:focus {
-    border-color: var(--focus-border-color);
-    box-shadow: 0 0 0 3px var(--focus-shadow-color);
-    outline: none;
+    width: 140px;
 }
 
 input[type="checkbox"],
@@ -333,58 +322,59 @@ input[type="file"] {
     display: none;
 }
 
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--focus-border-color);
+    box-shadow: 0 0 0 3px var(--focus-shadow-color);
+    outline: none;
+}
+
 /* ****** Form or Link: Button ****** */
 
 input[type="submit"],
 button,
-a.rstm-button {
-    display: inline-block;
+.rstm-button,
+.rstm-button-outline {
+    display: inline-flex; /* for <a> with <img> */
     border: 1px solid var(--button-color);
     border-radius: 8px;
     padding: 4px 12px;
+    height: 30px;
     color: var(--text-bgcolor);
     background-color: var(--button-color);
     font-family: var(--font);
-    font-size: 13px;
     text-decoration: none;
     cursor: pointer;
+    vertical-align: middle; /* don't align on text baseline */
+    align-items: center; /* for flex */
+    gap: 8px; /* for flex */
     align-self: start; /* don't stretch vertically */
     justify-self: start; /* don't stretch horizontally */
 }
 
 input[type="submit"]:focus,
 button:hover,
-a.rstm-button:hover {
-    border-color: var(--button-hover-color);
+.rstm-button:hover {
     background-color: var(--button-hover-color);
 }
 
-a.rstm-button-outline,
-button.rstm-button-outline,
-label.rstm-button-outline {
-    display: inline-block;
-    border: 1px solid var(--button-outline-color);
-    border-radius: 8px;
-    padding: 4px 12px;
+.rstm-button-outline {
+    border-color: var(--button-outline-color);
     color: var(--text-color);
     background-color: transparent;
-    font-size: 13px;
-    text-decoration: none;
-    cursor: pointer;
-    align-self: start; /* don't stretch vertically */
-    justify-self: start; /* don't stretch horizontally */
 }
 
-a.rstm-button-outline:hover,
-button.rstm-button-outline:hover,
-label.rstm-button-outline:hover {
+.rstm-button-outline:hover {
     background-color: var(--hover-bgcolor);
 }
 
 .rstm-button-outline img {
     width: 20px;
     height: 20px;
-    vertical-align: middle;
 }
 
 /* ****** Link: Inputgroup ****** */
@@ -402,8 +392,8 @@ label.rstm-button-outline:hover {
     border: 1px solid var(--button-outline-color);
     border-radius: 0;
     padding: 4px 12px;
+    height: 30px;
     color: var(--text-color);
-    font-size: 13px;
     text-decoration: none;
 }
 
@@ -423,22 +413,21 @@ label.rstm-button-outline:hover {
 
 .rstm-box {
     margin: 0 auto 0 auto;
+    border: 2px solid var(--button-outline-color);
     border-radius: 12px;
     padding: 16px;
     width: max-content;
-    background-color: var(--table-bgcolor);
 }
 
 /* ****** Icon, Avatar ****** */
 
 a.rstm-icon {
     display: inline-flex; /* <a> must grow to contained <img> */
-    line-height: 0;
     text-decoration: none;
 }
 
 a.rstm-icon img {
-    height: 70px;
+    height: 64px;
 }
 
 a.rstm-icon:hover {
