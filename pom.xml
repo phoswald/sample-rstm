@@ -6,12 +6,16 @@
 
   <groupId>com.github.phoswald</groupId>
   <artifactId>sample-rstm</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
 
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <revision>0.1.0</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
     <maven.compiler.release>25</maven.compiler.release>
     <maven.compiler.proc>full</maven.compiler.proc>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <rstm.version>0.1.0-SNAPSHOT</rstm.version>
   </properties>
 

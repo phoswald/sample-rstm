@@ -14,4 +14,12 @@ jobs:
           restore-keys: |
             maven-
       - run: mkdir -p ~/.m2 &&  echo "${{ secrets.M2_SETTINGS }}" > ~/.m2/settings.xml
-      - run: mvn -B clean deploy -P docker
+      - run: |
+          GIT_BRANCH="${{ forgejo.ref_name }}"
+          if [[ "${GIT_BRANCH}" == "master" || "${GIT_BRANCH}" == release/* ]]; then
+            MAVEN_CHANGELIST=""
+          else
+            MAVEN_CHANGELIST="-$(echo "${GIT_BRANCH}" | sed 's/[^a-zA-Z0-9._-]/-/g')"
+          fi
+          # if desired, prepend "-$(date "+%Y%m%d-%H%M")"
+          mvn -B clean deploy -P docker -Dchangelist="${MAVEN_CHANGELIST}"
