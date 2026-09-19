@@ -1,4 +1,4 @@
-FROM code.phoswald.ch/philip/jre-25:latest
+FROM code.phoswald.ch/philip/jre-27:latest
 
 ENV TZ                  Europe/Zurich
 ENV LANG                de_CH.UTF-8
