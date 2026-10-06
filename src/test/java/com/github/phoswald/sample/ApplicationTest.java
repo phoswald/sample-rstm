@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.phoswald.sample.task.Task;
+import com.github.phoswald.sample.wyb.Location;
 
 class ApplicationTest {
 
@@ -173,6 +174,25 @@ class ApplicationTest {
                 .get("/app/rest/tasks/" + taskId.get())
                 .then()
                 .statusCode(404)
+                .body(equalTo(""));
+    }
+
+    @Test
+    void postWybResource() {
+        var request = Location.builder()
+                .latitude(1.0)
+                .longitude(2.0)
+                //.timestamp(Instant.now()) // TODO (WYB): need jackson-datatype-jsr310 to handle Instant, but format mismatch?
+                .build();
+        given()
+                .auth().preemptive().basic("username2", "password2") // TODO (WYB): use token instead
+                //.auth().preemptive().oauth2(((TestModule) module).getWybToken())
+                .contentType("application/json")
+                .body(request)
+                .when()
+                .post("/app/rest/where-you-been")
+                .then()
+                .statusCode(204)
                 .body(equalTo(""));
     }
 

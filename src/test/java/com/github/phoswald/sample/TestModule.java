@@ -9,6 +9,12 @@ import com.github.phoswald.rstm.security.SimpleIdentityProvider;
 
 class TestModule extends ApplicationModule {
 
+//    Principal wyb;
+//
+//    String getWybToken() {
+//        return wyb.token();
+//    }
+
     @Override
     public ConfigProvider getConfigProvider() {
         return new ConfigProvider() {
@@ -24,7 +30,10 @@ class TestModule extends ApplicationModule {
 
     @Override
     public IdentityProvider getIdentityProvider() {
-        return new SimpleIdentityProvider()
-                .withUser("username1", "password1", List.of("user"));
+        // TokenProvider tokenProvider = new SimpleTokenProvider(); // TODO (WYB): add token to simple provider
+        // wyb = tokenProvider.createPrincipal("username3", List.of("wyb"));
+        return new SimpleIdentityProvider(/* tokenProvider */)
+                .withUser("username1", "password1", List.of("user"))
+                .withUser("username2", "password2", List.of("wyb")); // TODO (WYB): remove, use token instead
     }
 }

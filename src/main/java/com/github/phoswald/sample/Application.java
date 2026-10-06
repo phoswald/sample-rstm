@@ -38,6 +38,8 @@ import com.github.phoswald.sample.task.Task;
 import com.github.phoswald.sample.task.TaskController;
 import com.github.phoswald.sample.task.TaskList;
 import com.github.phoswald.sample.task.TaskResource;
+import com.github.phoswald.sample.wyb.Location;
+import com.github.phoswald.sample.wyb.WhereYouBeenRessource;
 
 public class Application {
 
@@ -47,6 +49,7 @@ public class Application {
     private final SampleController sampleController;
     private final TaskResource taskResource;
     private final TaskController taskController;
+    private final WhereYouBeenRessource wybRessource;
     private final IdentityProvider identityProvider;
     private final HealthCheckRegistry healthCheckRegistry;
     private final MetricsRegistry metricsRegistry;
@@ -59,6 +62,7 @@ public class Application {
             SampleController sampleController,
             TaskResource taskResource,
             TaskController taskController,
+            WhereYouBeenRessource wybRessource,
             IdentityProvider identityProvider,
             HealthCheckRegistry healthCheckRegistry,
             MetricsRegistry metricsRegistry) {
@@ -67,6 +71,7 @@ public class Application {
         this.sampleController = sampleController;
         this.taskResource = taskResource;
         this.taskController = taskController;
+        this.wybRessource = wybRessource;
         this.identityProvider = identityProvider;
         this.healthCheckRegistry = healthCheckRegistry;
         this.metricsRegistry = metricsRegistry;
@@ -114,6 +119,9 @@ public class Application {
                         getRest(json(), TaskResource.IdParams.class, Task.class, taskResource::getTask),
                         putRest(json(), TaskResource.IdParams.class, Task.class, Task.class, taskResource::putTask),
                         deleteRest(json(), TaskResource.IdParams.class, String.class, taskResource::deleteTask)),
+                route("/app/rest/where-you-been", auth("user", // TODO (WYB): Use custom role "wyb" instead of "user"
+                        postRest(json(), Location.class, String.class, wybRessource::postPosition)
+                )),
                 route("/app/pages", auth("user",
                         route("/sample",
                                 getHtml(req -> sampleController.getSamplePage(req.principal()))),
