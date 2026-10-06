@@ -1,4 +1,4 @@
-package com.github.phoswald.sample.wyb;
+package com.github.phoswald.sample.location;
 
 import java.time.Instant;
 

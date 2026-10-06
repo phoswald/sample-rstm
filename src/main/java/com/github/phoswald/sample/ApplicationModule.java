@@ -20,12 +20,12 @@ import com.github.phoswald.rstm.security.TokenProvider;
 import com.github.phoswald.rstm.security.jdbc.JdbcIdentityProvider;
 import com.github.phoswald.rstm.security.jwt.JwtTokenProvider;
 import com.github.phoswald.rstm.security.oidc.OidcIdentityProvider;
+import com.github.phoswald.sample.location.LocationResource;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.TaskController;
 import com.github.phoswald.sample.task.TaskRepository;
 import com.github.phoswald.sample.task.TaskResource;
-import com.github.phoswald.sample.wyb.WhereYouBeenRessource;
 
 public class ApplicationModule {
 
@@ -38,7 +38,7 @@ public class ApplicationModule {
     public Application getApplication() {
         return new Application(getConfigProvider(),
                 getSampleResource(), getSampleController(), getTaskResource(), getTaskController(),
-                getWhereYouBeenRessource(),
+                getLocationResource(),
                 getIdentityProvider(), healthCheckRegistry, metricsRegistry);
     }
 
@@ -66,8 +66,8 @@ public class ApplicationModule {
         return () -> new TaskRepository(getConnection());
     }
 
-    public WhereYouBeenRessource getWhereYouBeenRessource() {
-        return new WhereYouBeenRessource();
+    public LocationResource getLocationResource() {
+        return new LocationResource();
     }
 
     public IdentityProvider getIdentityProvider() {
@@ -108,13 +108,6 @@ public class ApplicationModule {
                 logger.info("Using OIDC provider: Facebook");
                 federatedIdp.withFacebook(facebookClientId.get(), facebookClientSecret.get());
             }
-//            // Add WhereYouBeen Backend if configured
-//            Optional<String> wybClientId = config.getConfigProperty("app.oidc.wyb.client.id");
-//            Optional<String> wybClientSecret = config.getConfigProperty("app.oidc.wyb.client.secret");
-//            if (wybClientId.isPresent() && wybClientSecret.isPresent()) {
-//                logger.info("Using OIDC provider: WhereYouBeen Backend (Google)");
-//                federatedIdp.withGoogle(wybClientId.get(), wybClientSecret.get()); // TODO (WYB): withGoogle() can only be called once
-//            }
             return federatedIdp;
         } else {
             return localIdp;

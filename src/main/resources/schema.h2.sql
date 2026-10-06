@@ -1,14 +1,14 @@
-CREATE TABLE IF NOT EXISTS task_ (
-  task_id_     VARCHAR(255) PRIMARY KEY NOT NULL,
-  user_id_     VARCHAR(255),
-  timestamp_   TIMESTAMP,
-  title_       VARCHAR(255),
-  description_ VARCHAR(255),
-  done_        BOOLEAN
+create table if not exists task_ (
+  task_id_     varchar(255) primary key not null,
+  user_id_     varchar(255),
+  timestamp_   timestamp,
+  title_       varchar(255),
+  description_ varchar(255),
+  done_        boolean
 );
 
-CREATE TABLE IF NOT EXISTS user_ (
-  username_ VARCHAR(255) PRIMARY KEY NOT NULL,
-  password_ VARCHAR(255),
-  roles_    VARCHAR(255)
+create table if not exists user_ (
+  username_ varchar(255) primary key not null,
+  password_ varchar(255),
+  roles_    varchar(255)
 );
