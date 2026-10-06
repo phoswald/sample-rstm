@@ -185,8 +185,9 @@ class ApplicationTest {
                 //.timestamp(Instant.now()) // TODO (WYB): need jackson-datatype-jsr310 to handle Instant, but format mismatch?
                 .build();
         given()
-                .auth().preemptive().basic("username2", "password2") // TODO (WYB): use token instead
-                //.auth().preemptive().oauth2(((TestModule) module).getWybToken())
+                .auth().preemptive().basic("username1", "password1") // TODO (WYB): Use custom role "wyb" instead of "user"
+                //.auth().preemptive().basic("username2", "password2") // TODO (WYB): use token instead
+                //.auth().preemptive().oauth2(((TestModule) module).getWybToken()) // TODO (WYB): use token instead
                 .contentType("application/json")
                 .body(request)
                 .when()
