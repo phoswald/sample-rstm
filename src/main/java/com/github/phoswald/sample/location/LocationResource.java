@@ -1,6 +1,5 @@
 package com.github.phoswald.sample.location;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -25,7 +24,6 @@ public class LocationResource {
         try (LocationRepository repository = repositoryFactory.get()) {
             Location location = requestBody.toBuilder()
                     .userId(request.principal().name())
-                    .timestamp(requestBody.timestamp() != null ? requestBody.timestamp() : Instant.now()) // TODO: make timestamp mandatory, requires fixing Instant serialization in REST assured (see ApplicationTest)
                     .build();
             repository.createLocation(location);
             return location;

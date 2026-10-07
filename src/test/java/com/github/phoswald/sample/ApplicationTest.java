@@ -10,20 +10,37 @@ import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.phoswald.sample.location.Location;
 import com.github.phoswald.sample.task.Task;
+
+import io.restassured.RestAssured;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.config.RestAssuredConfig;
 
 class ApplicationTest {
 
     private static final ApplicationModule module = new TestModule();
 
     private final Application testee = module.getApplication();
+
+    @BeforeAll
+    static void configureRestAssured() {
+        // serialize java.time types (i.e. Instant) as ISO-8601 strings instead of epoch seconds
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
+                ObjectMapperConfig.objectMapperConfig().jackson2ObjectMapperFactory((type, charset) ->
+                        new ObjectMapper().findAndRegisterModules()
+                                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)));
+    }
 
     @BeforeEach
     void start() {
@@ -212,7 +229,7 @@ class ApplicationTest {
         var request = Location.builder()
                 .latitude(1.0)
                 .longitude(2.0)
-                //.timestamp(Instant.now()) // TODO: need jackson-datatype-jsr310 to handle Instant, but format mismatch?
+                .timestamp(Instant.now())
                 .build();
         given()
                 .auth().preemptive().basic("username1", "password1")
