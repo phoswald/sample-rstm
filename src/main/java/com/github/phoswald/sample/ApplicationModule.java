@@ -73,7 +73,7 @@ public class ApplicationModule {
     }
 
     public LocationController getLocationController() {
-        return new LocationController();
+        return new LocationController(getLocationRepositoryFactory());
     }
 
     public Supplier<LocationRepository> getLocationRepositoryFactory() {

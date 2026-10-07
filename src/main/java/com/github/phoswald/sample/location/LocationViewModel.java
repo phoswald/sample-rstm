@@ -1,3 +1,3 @@
 package com.github.phoswald.sample.location;
 
-public record LocationViewModel() { }
+public record LocationViewModel(String userId) { }

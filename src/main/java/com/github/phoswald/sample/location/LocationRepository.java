@@ -70,6 +70,28 @@ public class LocationRepository implements AutoCloseable {
         }
     }
 
+    public List<String> selectUsersByViewer(String viewerUserId) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement("""
+                    SELECT user_id_
+                    FROM location_perm_
+                    WHERE user_id_view_ = ?
+                    ORDER BY user_id_
+                    """);
+            stmt.setString(1, viewerUserId);
+            ResultSet resultSet = stmt.executeQuery();
+            List<String> userIds = new ArrayList<>();
+            while (resultSet.next()) {
+                userIds.add(resultSet.getString("user_id_"));
+            }
+            userIds.add(viewerUserId);
+            resultSet.close();
+            return userIds;
+        } catch (SQLException e) {
+            throw new SqlException(e);
+        }
+    }
+
     private Timestamp convertTimestamp(Instant t) {
         return t == null ? null : new Timestamp(t.toEpochMilli());
     }
