@@ -4,7 +4,10 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -178,7 +181,7 @@ class ApplicationTest {
     }
 
     @Test
-    void postLocationResource() {
+    void crudLocationResource() {
         var request = Location.builder()
                 .latitude(1.0)
                 .longitude(2.0)
@@ -191,8 +194,22 @@ class ApplicationTest {
                 .when()
                 .post("/app/rest/where-you-been")
                 .then()
-                .statusCode(204)
-                .body(equalTo(""));
+                .statusCode(200)
+                .contentType("application/json")
+                .body("userId", equalTo("username1"))
+                .body("latitude", equalTo(1.0f))
+                .body("longitude", equalTo(2.0f))
+                .body("timestamp", notNullValue());
+
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
+                .get("/app/rest/where-you-been")
+                .then()
+                .statusCode(200)
+                .contentType("application/json")
+                .body("locations.userId", everyItem(equalTo("username1")))
+                .body("locations.longitude", hasItem(2.0f));
     }
 
     @Test

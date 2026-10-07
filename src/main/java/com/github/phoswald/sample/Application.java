@@ -31,6 +31,7 @@ import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.rstm.security.IdentityProvider;
 import com.github.phoswald.sample.location.Location;
+import com.github.phoswald.sample.location.LocationList;
 import com.github.phoswald.sample.location.LocationResource;
 import com.github.phoswald.sample.sample.EchoRequest;
 import com.github.phoswald.sample.sample.EchoResponse;
@@ -120,7 +121,8 @@ public class Application {
                         putRest(json(), TaskResource.IdParams.class, Task.class, Task.class, taskResource::putTask),
                         deleteRest(json(), TaskResource.IdParams.class, String.class, taskResource::deleteTask)),
                 route("/app/rest/where-you-been", auth("user",
-                        postRest(json(), Location.class, String.class, locationResource::postLocation)
+                        getRest(json(), LocationList.class, locationResource::getLocations),
+                        postRest(json(), Location.class, Location.class, locationResource::postLocation)
                 )),
                 route("/app/pages", auth("user",
                         route("/sample",

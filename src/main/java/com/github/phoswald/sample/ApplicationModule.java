@@ -20,6 +20,7 @@ import com.github.phoswald.rstm.security.TokenProvider;
 import com.github.phoswald.rstm.security.jdbc.JdbcIdentityProvider;
 import com.github.phoswald.rstm.security.jwt.JwtTokenProvider;
 import com.github.phoswald.rstm.security.oidc.OidcIdentityProvider;
+import com.github.phoswald.sample.location.LocationRepository;
 import com.github.phoswald.sample.location.LocationResource;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
@@ -67,7 +68,11 @@ public class ApplicationModule {
     }
 
     public LocationResource getLocationResource() {
-        return new LocationResource();
+        return new LocationResource(getLocationRepositoryFactory());
+    }
+
+    public Supplier<LocationRepository> getLocationRepositoryFactory() {
+        return () -> new LocationRepository(getConnection());
     }
 
     public IdentityProvider getIdentityProvider() {
