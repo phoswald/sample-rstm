@@ -21,15 +21,14 @@ public class LocationResource {
         }
     }
 
-    public Location postLocation(HttpRequest request, Location location) {
+    public Location postLocation(HttpRequest request, Location requestBody) {
         try (LocationRepository repository = repositoryFactory.get()) {
-            Location entity = location.toBuilder()
+            Location location = requestBody.toBuilder()
                     .userId(request.principal().name())
-                    // TODO: make timestamp mandatory, requires fixing Instant serialization in REST assured (see ApplicationTest)
-                    .timestamp(location.timestamp() != null ? location.timestamp() : Instant.now())
+                    .timestamp(requestBody.timestamp() != null ? requestBody.timestamp() : Instant.now()) // TODO: make timestamp mandatory, requires fixing Instant serialization in REST assured (see ApplicationTest)
                     .build();
-            repository.createLocation(entity);
-            return entity;
+            repository.createLocation(location);
+            return location;
         }
     }
 }

@@ -26,13 +26,15 @@ public class TaskRepository implements AutoCloseable {
         }
     }
 
-    public List<Task> selectAllTasks() {
+    public List<Task> selectTasksByUser(String userId) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     SELECT task_id_, user_id_, timestamp_, title_, description_, done_
                     FROM task_
+                    WHERE user_id_ = ?
                     ORDER BY timestamp_ DESC
                     """);
+            stmt.setString(1, userId);
             stmt.setMaxRows(1000);
             ResultSet resultSet = stmt.executeQuery();
             List<Task> tasks = new ArrayList<>();
@@ -54,14 +56,15 @@ public class TaskRepository implements AutoCloseable {
         }
     }
 
-    public Task selectTaskById(String taskId) {
+    public Task selectTaskById(String userId, String taskId) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     SELECT task_id_, user_id_, timestamp_, title_, description_, done_
                     FROM task_
-                    WHERE task_id_ = ?
+                    WHERE user_id_ = ? AND task_id_ = ?
                     """);
-            stmt.setString(1, taskId);
+            stmt.setString(1, userId);
+            stmt.setString(2, taskId);
             ResultSet resultSet = stmt.executeQuery();
             if (resultSet.next()) {
                 Task task = Task.builder()
@@ -105,9 +108,10 @@ public class TaskRepository implements AutoCloseable {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     DELETE FROM task_
-                    WHERE task_id_ = ?
+                    WHERE task_id_ = ? AND user_id_ = ?
                     """);
             stmt.setString(1, task.taskId());
+            stmt.setString(2, task.userId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new SqlException(e);
@@ -118,15 +122,15 @@ public class TaskRepository implements AutoCloseable {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     UPDATE task_
-                    SET user_id_ = ?, timestamp_ = ?, title_ = ?, description_ = ?, done_ = ?
-                    WHERE task_id_ = ?
+                    SET timestamp_ = ?, title_ = ?, description_ = ?, done_ = ?
+                    WHERE task_id_ = ? AND user_id_ = ?
                     """);
-            stmt.setString(6, task.taskId());
-            stmt.setString(1, task.userId());
-            stmt.setTimestamp(2, convertTimestamp(task.timestamp()));
-            stmt.setString(3, task.title());
-            stmt.setString(4, task.description());
-            stmt.setBoolean(5, task.done());
+            stmt.setString(5, task.taskId());
+            stmt.setString(6, task.userId());
+            stmt.setTimestamp(1, convertTimestamp(task.timestamp()));
+            stmt.setString(2, task.title());
+            stmt.setString(3, task.description());
+            stmt.setBoolean(4, task.done());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new SqlException(e);

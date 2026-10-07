@@ -119,6 +119,7 @@ class ApplicationTest {
         var taskId = new AtomicReference<String>();
         var request = Task.builder().title("Test title").build();
         given()
+                .auth().preemptive().basic("username1", "password1")
                 .contentType("application/json")
                 .body(request)
                 .when()
@@ -127,11 +128,13 @@ class ApplicationTest {
                 .statusCode(200)
                 .contentType("application/json")
                 .body("taskId", PeekMatcher.peek(taskId::set))
-                .body("taskId", matchesRegex("[0-9a-f-]{36}"))
-                .body("userId", equalTo("guest"))
+                .body("taskId", matchesRegex("[0-9a-f]{32}"))
+                .body("userId", equalTo("username1"))
                 .body("title", equalTo("Test title"));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks")
                 .then()
                 .statusCode(200)
@@ -140,6 +143,7 @@ class ApplicationTest {
 
         request = Task.builder().title("Test title, updated").build();
         given()
+                .auth().preemptive().basic("username1", "password1")
                 .contentType("application/json")
                 .body(request)
                 .when()
@@ -148,36 +152,59 @@ class ApplicationTest {
                 .statusCode(200)
                 .contentType("application/json")
                 .body("taskId", equalTo(taskId.get()))
-                .body("userId", equalTo("guest"))
+                .body("userId", equalTo("username1"))
                 .body("title", equalTo("Test title, updated"));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks/" + taskId.get())
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
                 .body("taskId", equalTo(taskId.get()))
-                .body("userId", equalTo("guest"))
+                .body("userId", equalTo("username1"))
                 .body("title", equalTo("Test title, updated"));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .delete("/app/rest/tasks/" + taskId.get())
                 .then()
                 .statusCode(204)
                 .body(equalTo(""));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks")
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
                 .body("tasks.size()", equalTo(0));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks/" + taskId.get())
                 .then()
                 .statusCode(404)
                 .body(equalTo(""));
+
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
+                .delete("/app/rest/tasks/" + taskId.get())
+                .then()
+                .statusCode(404);
+
+        given()
+                .redirects().follow(false)
+                .when()
+                .get("/app/rest/tasks")
+                .then()
+                .statusCode(302)
+                .header("Location", containsString("/login.html"));
     }
 
     @Test
