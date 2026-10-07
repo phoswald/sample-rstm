@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sample Page</title>
+  <link rel="icon" href="../../images/java-logo.ico"/>
+  <link rel="stylesheet" href="../../rstm.css"/>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <header>
+    <img src="../../images/java-logo.svg" alt="Java Logo"/>
+    <span>RSTM Sample Service</span>
+  </header>
+  <nav>
+    <a href="../../">Home</a>
+    <a href="" class="rstm-active">Locations</a>
+  </nav>
+  <main>
+    <h2>Locations</h2>
+    <div id="map" class="rstm-map"></div>
+    <script>
+      var mapData = {
+        titleLayerUrlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        titleLayerOptions: {
+          maxZoom: 19,
+          attribution: "(c) OpenStreetMap contributors"
+        },
+        polyLineCoords: [ [47.0, 8.2], [47.1, 8.3] ],
+        polyLineOptions: {
+          color: "#6d4aaa",
+          weight: 3
+        },
+        markerCoords: [47.05, 8.25]
+      };
+      var map = L.map('map');
+      L.tileLayer(mapData.titleLayerUrlTemplate, mapData.titleLayerOptions).addTo(map);
+      var polyline = L.polyline(mapData.polyLineCoords, mapData.polyLineOptions).addTo(map);
+      // map.fitBounds(polyline.getBounds());
+      var marker = L.marker(mapData.markerCoords).addTo(map);
+      map.setView(mapData.markerCoords, 16);
+    </script>
+  </main>
+</body>
+</html>
