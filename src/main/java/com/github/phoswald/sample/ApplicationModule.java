@@ -20,6 +20,9 @@ import com.github.phoswald.rstm.security.TokenProvider;
 import com.github.phoswald.rstm.security.jdbc.JdbcIdentityProvider;
 import com.github.phoswald.rstm.security.jwt.JwtTokenProvider;
 import com.github.phoswald.rstm.security.oidc.OidcIdentityProvider;
+import com.github.phoswald.sample.location.LocationController;
+import com.github.phoswald.sample.location.LocationRepository;
+import com.github.phoswald.sample.location.LocationResource;
 import com.github.phoswald.sample.sample.SampleController;
 import com.github.phoswald.sample.sample.SampleResource;
 import com.github.phoswald.sample.task.TaskController;
@@ -37,6 +40,7 @@ public class ApplicationModule {
     public Application getApplication() {
         return new Application(getConfigProvider(),
                 getSampleResource(), getSampleController(), getTaskResource(), getTaskController(),
+                getLocationResource(), getLocationController(),
                 getIdentityProvider(), healthCheckRegistry, metricsRegistry);
     }
 
@@ -64,14 +68,27 @@ public class ApplicationModule {
         return () -> new TaskRepository(getConnection());
     }
 
+    public LocationResource getLocationResource() {
+        return new LocationResource(getLocationRepositoryFactory());
+    }
+
+    public LocationController getLocationController() {
+        return new LocationController(getLocationRepositoryFactory());
+    }
+
+    public Supplier<LocationRepository> getLocationRepositoryFactory() {
+        return () -> new LocationRepository(getConnection());
+    }
+
     public IdentityProvider getIdentityProvider() {
         ConfigProvider config = getConfigProvider();
         IdentityProvider localIdp = getLocalIdentityProvider();
+        Optional<String> secret = config.getConfigProperty("app.jwt.secret");
         Optional<String> oidcRedirectUri = config.getConfigProperty("app.oidc.redirect.uri");
-        if (oidcRedirectUri.isPresent()) {
+        if (secret.isPresent() && oidcRedirectUri.isPresent()) {
             // Create a federated IDP that wraps the local IDP
             logger.info("Using federated IDP: OIDC");
-            OidcIdentityProvider federatedIdp = new OidcIdentityProvider(oidcRedirectUri.get(), localIdp);
+            OidcIdentityProvider federatedIdp = new OidcIdentityProvider(oidcRedirectUri.get(), secret.get(), localIdp);
             // Add Dex if configured
             Optional<String> dexClientId = config.getConfigProperty("app.oidc.dex.client.id");
             Optional<String> dexClientSecret = config.getConfigProperty("app.oidc.dex.client.secret");

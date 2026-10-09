@@ -24,6 +24,6 @@ public record Task(
     }
 
     public static String newTaskId() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replace("-", "");
     }
 }

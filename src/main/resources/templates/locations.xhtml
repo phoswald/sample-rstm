@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:t="https://github.com/phoswald/rstm/rstm-template">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Where Been?</title>
+  <link rel="icon" href="../../images/java-logo.ico"/>
+  <link rel="stylesheet" href="../../rstm.css"/>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <!--<header>
+    <img src="../../images/java-logo.svg" alt="Java Logo"/>
+    <span>RSTM Sample Service</span>
+  </header>-->
+  <!--<nav>
+    <a href="../../">Home</a>
+    <a href="" class="rstm-active">Locations</a>
+  </nav>-->
+  <main>
+    <h2>Where <span t:text="userId">???</span> Been?</h2>
+    <div id="map" class="rstm-map"></div>
+    <script type="module">
+      var mapData = <span t:raw="mapDataJson"/>;
+      var map = L.map('map');
+      L.tileLayer(mapData.titleLayerUrlTemplate, mapData.titleLayerOptions).addTo(map);
+      if(mapData.polyLineCoords) {
+        var polyline = L.polyline(mapData.polyLineCoords, mapData.polyLineOptions).addTo(map);
+        // map.fitBounds(polyline.getBounds());
+        var marker = L.marker(mapData.markerCoords).addTo(map);
+        map.setView(mapData.markerCoords, 16);
+      } else {
+        map.setView({ lat: 0, lng: 0}, 2);
+      }
+    </script>
+  </main>
+</body>
+</html>

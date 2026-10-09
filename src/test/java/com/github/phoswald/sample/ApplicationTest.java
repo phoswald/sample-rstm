@@ -4,22 +4,43 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.matchesRegex;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.github.phoswald.sample.location.Location;
 import com.github.phoswald.sample.task.Task;
+
+import io.restassured.RestAssured;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.config.RestAssuredConfig;
 
 class ApplicationTest {
 
     private static final ApplicationModule module = new TestModule();
 
     private final Application testee = module.getApplication();
+
+    @BeforeAll
+    static void configureRestAssured() {
+        // serialize java.time types (i.e. Instant) as ISO-8601 strings instead of epoch seconds
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
+                ObjectMapperConfig.objectMapperConfig().jackson2ObjectMapperFactory((type, charset) ->
+                        new ObjectMapper().findAndRegisterModules()
+                                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)));
+    }
 
     @BeforeEach
     void start() {
@@ -115,6 +136,7 @@ class ApplicationTest {
         var taskId = new AtomicReference<String>();
         var request = Task.builder().title("Test title").build();
         given()
+                .auth().preemptive().basic("username1", "password1")
                 .contentType("application/json")
                 .body(request)
                 .when()
@@ -123,11 +145,13 @@ class ApplicationTest {
                 .statusCode(200)
                 .contentType("application/json")
                 .body("taskId", PeekMatcher.peek(taskId::set))
-                .body("taskId", matchesRegex("[0-9a-f-]{36}"))
-                .body("userId", equalTo("guest"))
+                .body("taskId", matchesRegex("[0-9a-f]{32}"))
+                .body("userId", equalTo("username1"))
                 .body("title", equalTo("Test title"));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks")
                 .then()
                 .statusCode(200)
@@ -136,6 +160,7 @@ class ApplicationTest {
 
         request = Task.builder().title("Test title, updated").build();
         given()
+                .auth().preemptive().basic("username1", "password1")
                 .contentType("application/json")
                 .body(request)
                 .when()
@@ -144,36 +169,91 @@ class ApplicationTest {
                 .statusCode(200)
                 .contentType("application/json")
                 .body("taskId", equalTo(taskId.get()))
-                .body("userId", equalTo("guest"))
+                .body("userId", equalTo("username1"))
                 .body("title", equalTo("Test title, updated"));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks/" + taskId.get())
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
                 .body("taskId", equalTo(taskId.get()))
-                .body("userId", equalTo("guest"))
+                .body("userId", equalTo("username1"))
                 .body("title", equalTo("Test title, updated"));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .delete("/app/rest/tasks/" + taskId.get())
                 .then()
                 .statusCode(204)
                 .body(equalTo(""));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks")
                 .then()
                 .statusCode(200)
                 .contentType("application/json")
                 .body("tasks.size()", equalTo(0));
 
-        when()
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
                 .get("/app/rest/tasks/" + taskId.get())
                 .then()
                 .statusCode(404)
                 .body(equalTo(""));
+
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
+                .delete("/app/rest/tasks/" + taskId.get())
+                .then()
+                .statusCode(404);
+
+        given()
+                .redirects().follow(false)
+                .when()
+                .get("/app/rest/tasks")
+                .then()
+                .statusCode(302)
+                .header("Location", containsString("/login.html"));
+    }
+
+    @Test
+    void crudLocationResource() {
+        var request = Location.builder()
+                .latitude(1.0)
+                .longitude(2.0)
+                .timestamp(Instant.now())
+                .build();
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .contentType("application/json")
+                .body(request)
+                .when()
+                .post("/app/rest/locations")
+                .then()
+                .statusCode(200)
+                .contentType("application/json")
+                .body("userId", equalTo("username1"))
+                .body("latitude", equalTo(1.0f))
+                .body("longitude", equalTo(2.0f))
+                .body("timestamp", notNullValue());
+
+        given()
+                .auth().preemptive().basic("username1", "password1")
+                .when()
+                .get("/app/rest/locations")
+                .then()
+                .statusCode(200)
+                .contentType("application/json")
+                .body("locations.userId", everyItem(equalTo("username1")))
+                .body("locations.longitude", hasItem(2.0f));
     }
 
     @Test

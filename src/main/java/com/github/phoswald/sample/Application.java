@@ -30,6 +30,10 @@ import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.rstm.security.IdentityProvider;
+import com.github.phoswald.sample.location.Location;
+import com.github.phoswald.sample.location.LocationController;
+import com.github.phoswald.sample.location.LocationList;
+import com.github.phoswald.sample.location.LocationResource;
 import com.github.phoswald.sample.sample.EchoRequest;
 import com.github.phoswald.sample.sample.EchoResponse;
 import com.github.phoswald.sample.sample.SampleController;
@@ -47,6 +51,8 @@ public class Application {
     private final SampleController sampleController;
     private final TaskResource taskResource;
     private final TaskController taskController;
+    private final LocationResource locationResource;
+    private final LocationController locationController;
     private final IdentityProvider identityProvider;
     private final HealthCheckRegistry healthCheckRegistry;
     private final MetricsRegistry metricsRegistry;
@@ -59,6 +65,8 @@ public class Application {
             SampleController sampleController,
             TaskResource taskResource,
             TaskController taskController,
+            LocationResource locationResource,
+            LocationController locationController,
             IdentityProvider identityProvider,
             HealthCheckRegistry healthCheckRegistry,
             MetricsRegistry metricsRegistry) {
@@ -67,6 +75,8 @@ public class Application {
         this.sampleController = sampleController;
         this.taskResource = taskResource;
         this.taskController = taskController;
+        this.locationResource = locationResource;
+        this.locationController = locationController;
         this.identityProvider = identityProvider;
         this.healthCheckRegistry = healthCheckRegistry;
         this.metricsRegistry = metricsRegistry;
@@ -107,13 +117,16 @@ public class Application {
                         postRest(json(), EchoRequest.class, EchoResponse.class, sampleResource::postEcho)),
                 route("/app/rest/sample/me", auth("user",
                         getRest(text(), String.class, req -> sampleResource.getMe(req.principal())))),
-                route("/app/rest/tasks",
+                route("/app/rest/tasks", auth("user",
                         getRest(json(), TaskList.class, taskResource::getTasks),
-                        postRest(json(), Task.class, Task.class, taskResource::postTasks)),
-                route("/app/rest/tasks/{id}",
+                        postRest(json(), Task.class, Task.class, taskResource::postTasks))),
+                route("/app/rest/tasks/{id}", auth("user",
                         getRest(json(), TaskResource.IdParams.class, Task.class, taskResource::getTask),
                         putRest(json(), TaskResource.IdParams.class, Task.class, Task.class, taskResource::putTask),
-                        deleteRest(json(), TaskResource.IdParams.class, String.class, taskResource::deleteTask)),
+                        deleteRest(json(), TaskResource.IdParams.class, String.class, taskResource::deleteTask))),
+                route("/app/rest/locations", auth("user",
+                        getRest(json(), LocationList.class, locationResource::getLocations),
+                        postRest(json(), Location.class, Location.class, locationResource::postLocation))),
                 route("/app/pages", auth("user",
                         route("/sample",
                                 getHtml(req -> sampleController.getSamplePage(req.principal()))),
@@ -122,7 +135,9 @@ public class Application {
                                 postHtml(TaskController.PostParams.class, taskController::postTasksPage)),
                         route("/tasks/{id}",
                                 getHtml(TaskController.IdParams.class, taskController::getTaskPage),
-                                postHtml(TaskController.IdPostParams.class, taskController::postTaskPage)))),
+                                postHtml(TaskController.IdPostParams.class, taskController::postTaskPage)),
+                        route("/locations",
+                                getHtml(locationController::getLocationsPage)))),
                 healthCheckRegistry.createRoute(),
                 metricsRegistry.createRoute(),
                 openApiProvider.createRoutes()
