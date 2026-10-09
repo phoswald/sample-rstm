@@ -10,10 +10,9 @@ public record Leaflet(
         LeafletTitleLayerOptions titleLayerOptions,
         List<Point> polyLineCoords,
         LeafletPolyLineOptions polyLineOptions,
-        Point markerCoords,
-        String userId // TODO (refactor): remove from here, not part of map
+        Point markerCoords
 ) {
-    public static Leaflet createWithPolyLine(List<Point> points, Point marker, String userId) {
+    public static Leaflet createWithPolyLine(List<Point> points, Point marker) {
         return new LeafletBuilder()
                 .titleLayerUrlTemplate("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
                 .titleLayerOptions(new LeafletTitleLayerOptionsBuilder()
@@ -26,7 +25,6 @@ public record Leaflet(
                         .weight(3)
                         .build())
                 .markerCoords(marker)
-                .userId(userId)
                 .build();
     }
 

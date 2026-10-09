@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Sample Page</title>
+  <title>Where Been?</title>
   <link rel="icon" href="../../images/java-logo.ico"/>
   <link rel="stylesheet" href="../../rstm.css"/>
   <!-- Leaflet -->
@@ -20,16 +20,20 @@
     <a href="" class="rstm-active">Locations</a>
   </nav>-->
   <main>
-    <h2>Locations of <span t:text="userId">???</span></h2>
+    <h2>Where <span t:text="userId">???</span> Been?</h2>
     <div id="map" class="rstm-map"></div>
     <script type="module">
-      var mapData = await (await fetch("locations.json")).json();
+      var mapData = <span t:raw="mapDataJson"/>;
       var map = L.map('map');
       L.tileLayer(mapData.titleLayerUrlTemplate, mapData.titleLayerOptions).addTo(map);
-      var polyline = L.polyline(mapData.polyLineCoords, mapData.polyLineOptions).addTo(map);
-      // map.fitBounds(polyline.getBounds());
-      var marker = L.marker(mapData.markerCoords).addTo(map);
-      map.setView(mapData.markerCoords, 16);
+      if(mapData.polyLineCoords) {
+        var polyline = L.polyline(mapData.polyLineCoords, mapData.polyLineOptions).addTo(map);
+        // map.fitBounds(polyline.getBounds());
+        var marker = L.marker(mapData.markerCoords).addTo(map);
+        map.setView(mapData.markerCoords, 16);
+      } else {
+        map.setView({ lat: 0, lng: 0}, 2);
+      }
     </script>
   </main>
 </body>

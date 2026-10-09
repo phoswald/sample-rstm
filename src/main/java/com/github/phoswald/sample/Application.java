@@ -30,7 +30,6 @@ import com.github.phoswald.rstm.http.server.HttpFilter;
 import com.github.phoswald.rstm.http.server.HttpServer;
 import com.github.phoswald.rstm.http.server.HttpServerConfig;
 import com.github.phoswald.rstm.security.IdentityProvider;
-import com.github.phoswald.sample.location.Leaflet;
 import com.github.phoswald.sample.location.Location;
 import com.github.phoswald.sample.location.LocationController;
 import com.github.phoswald.sample.location.LocationList;
@@ -138,10 +137,7 @@ public class Application {
                                 getHtml(TaskController.IdParams.class, taskController::getTaskPage),
                                 postHtml(TaskController.IdPostParams.class, taskController::postTaskPage)),
                         route("/locations",
-                                getHtml(locationController::getLocationsPage)),
-                        route("/locations.json",
-                                getRest(json(), Leaflet.class, locationController::getLocationsJson))
-                )),
+                                getHtml(locationController::getLocationsPage)))),
                 healthCheckRegistry.createRoute(),
                 metricsRegistry.createRoute(),
                 openApiProvider.createRoutes()

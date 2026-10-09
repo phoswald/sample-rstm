@@ -1,3 +1,9 @@
 package com.github.phoswald.sample.location;
 
-public record LocationViewModel(String userId) { }
+import com.github.phoswald.record.builder.RecordBuilder;
+
+@RecordBuilder
+public record LocationViewModel(
+        String userId,
+        String mapDataJson
+) { }
