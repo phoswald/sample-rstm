@@ -19,7 +19,7 @@ class LocationRepositoryTest {
         Instant newer = Instant.ofEpochMilli(1_700_000_060_000L);
 
         try (LocationRepository testee = new LocationRepository(module.getConnection())) {
-            assertEquals(0, testee.selectLocationsByUser("guest").size());
+            assertEquals(0, testee.selectLocationsByUser("guest", 1).size());
 
             testee.createLocation(Location.builder()
                     .userId("guest")
@@ -37,7 +37,7 @@ class LocationRepositoryTest {
         }
 
         try (LocationRepository testee = new LocationRepository(module.getConnection())) {
-            List<Location> locations = testee.selectLocationsByUser("guest");
+            List<Location> locations = testee.selectLocationsByUser("guest", 1);
             assertEquals(2, locations.size());
             assertEquals("guest", locations.get(0).userId());
             assertEquals(newer, locations.get(0).timestamp());
@@ -46,7 +46,7 @@ class LocationRepositoryTest {
             assertEquals(older, locations.get(1).timestamp());
             assertEquals(1.0, locations.get(1).latitude());
 
-            assertEquals(0, testee.selectLocationsByUser("other").size());
+            assertEquals(0, testee.selectLocationsByUser("other", 1).size());
         }
     }
 }

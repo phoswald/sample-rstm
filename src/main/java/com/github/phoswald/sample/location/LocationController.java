@@ -35,7 +35,7 @@ public class LocationController {
         try (LocationRepository repository = repositoryFactory.get()) {
             List<String> userIds = repository.selectUsersByViewer(request.principal().name());
             for(String userId : userIds) {
-                List<Location> locations = repository.selectLocationsByUser(userId);
+                List<Location> locations = repository.selectLocationsByUser(userId, 24);
                 if(!locations.isEmpty()) {
                     return locations;
                 }

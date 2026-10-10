@@ -15,7 +15,7 @@ public class LocationResource {
 
     public LocationList getLocations(HttpRequest request) {
         try (LocationRepository repository = repositoryFactory.get()) {
-            List<Location> locations = repository.selectLocationsByUser(request.principal().name());
+            List<Location> locations = repository.selectLocationsByUser(request.principal().name(), 24);
             return new LocationList(locations);
         }
     }

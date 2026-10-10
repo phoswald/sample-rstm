@@ -26,16 +26,22 @@ public class LocationRepository implements AutoCloseable {
         }
     }
 
-    public List<Location> selectLocationsByUser(String userId) {
+    public List<Location> selectLocationsByUser(String userId, int hours) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     SELECT user_id_, timestamp_, latitude_, longitude_
                     FROM location_
-                    WHERE user_id_ = ?
+                    WHERE user_id_ = ? AND timestamp_ + (CAST(? AS INTEGER) * (INTERVAL '1' HOUR)) >= (
+                        SELECT MAX(timestamp_)
+                        FROM location_
+                        WHERE user_id_ = ?
+                    )
                     ORDER BY timestamp_ DESC
                     """);
             stmt.setString(1, userId);
-            stmt.setMaxRows(1000);
+            stmt.setInt(2, hours);
+            stmt.setString(3, userId);
+            stmt.setMaxRows(2000); // 24h * 1/min = 1440 rows
             ResultSet resultSet = stmt.executeQuery();
             List<Location> locations = new ArrayList<>();
             while (resultSet.next()) {
