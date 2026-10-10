@@ -30,7 +30,7 @@ public class LocationController {
         Leaflet mapData = createLeaflet(locations);
         return template.evaluate(new LocationViewModelBuilder()
                 .userId(locations == null ? "nobody" : locations.getFirst().userId())
-                .lastTime(locations == null ? "never" : formatDateTime(locations.getLast().timestamp()))
+                .lastTime(locations == null ? "never" : formatDateTime(locations.getFirst().timestamp()))
                 .mapDataJson(databinder.toJson(mapData))
                 .build());
     }

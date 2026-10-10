@@ -63,9 +63,17 @@ public class LocationRepository implements AutoCloseable {
     public void createLocation(Location location) {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
-                    INSERT INTO location_ (user_id_, timestamp_, latitude_, longitude_)
-                    VALUES (?, ?, ?, ?)
+                    MERGE INTO location_ t
+                    USING (VALUES (?, CAST(? AS TIMESTAMP), ?, ?)) AS s(user_id_, timestamp_, latitude_, longitude_)
+                        ON t.user_id_ = s.user_id_ AND t.timestamp_ = s.timestamp_
+                    WHEN NOT MATCHED THEN
+                        INSERT (user_id_, timestamp_, latitude_, longitude_) VALUES (s.user_id_, s.timestamp_, s.latitude_, s.longitude_)
+                    WHEN MATCHED THEN
+                        UPDATE SET latitude_ = s.latitude_, longitude_ = s.longitude_
                     """);
+            // Non-idempotent version:
+            // INSERT INTO location_ (user_id_, timestamp_, latitude_, longitude_)
+            // VALUES (?, ?, ?, ?)
             stmt.setString(1, location.userId());
             stmt.setTimestamp(2, convertTimestamp(location.timestamp()));
             stmt.setDouble(3, location.latitude());
