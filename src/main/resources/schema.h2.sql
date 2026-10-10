@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS task_ (
     task_id_        VARCHAR(32) PRIMARY KEY NOT NULL,
     user_id_        VARCHAR(32) NOT NULL,
-    timestamp_      TIMESTAMP NOT NULL,
+    timestamp_      TIMESTAMP WITH TIME ZONE NOT NULL,
     title_          VARCHAR NOT NULL,
     description_    VARCHAR NULL,
     done_           BOOLEAN NULL
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS task_ (
 
 CREATE TABLE IF NOT EXISTS location_ (
     user_id_        VARCHAR(32) NOT NULL,
-    timestamp_      TIMESTAMP NOT NULL,
+    timestamp_      TIMESTAMP WITH TIME ZONE NOT NULL,
     latitude_       DOUBLE PRECISION NOT NULL,
     longitude_      DOUBLE PRECISION NOT NULL,
     PRIMARY KEY (user_id_, timestamp_)

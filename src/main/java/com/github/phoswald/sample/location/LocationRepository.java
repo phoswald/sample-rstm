@@ -1,11 +1,14 @@
 package com.github.phoswald.sample.location;
 
+import static java.sql.Types.TIMESTAMP_WITH_TIMEZONE;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +50,7 @@ public class LocationRepository implements AutoCloseable {
             while (resultSet.next()) {
                 Location location = Location.builder()
                         .userId(resultSet.getString("user_id_"))
-                        .timestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")))
+                        .timestamp(convertTimestamp(resultSet.getObject("timestamp_", OffsetDateTime.class)))
                         .latitude(resultSet.getDouble("latitude_"))
                         .longitude(resultSet.getDouble("longitude_"))
                         .build();
@@ -64,7 +67,7 @@ public class LocationRepository implements AutoCloseable {
         try {
             PreparedStatement stmt = conn.prepareStatement("""
                     MERGE INTO location_ t
-                    USING (VALUES (?, CAST(? AS TIMESTAMP), ?, ?)) AS s(user_id_, timestamp_, latitude_, longitude_)
+                    USING (VALUES (?, CAST(? AS TIMESTAMP WITH TIME ZONE), ?, ?)) AS s(user_id_, timestamp_, latitude_, longitude_)
                         ON t.user_id_ = s.user_id_ AND t.timestamp_ = s.timestamp_
                     WHEN NOT MATCHED THEN
                         INSERT (user_id_, timestamp_, latitude_, longitude_) VALUES (s.user_id_, s.timestamp_, s.latitude_, s.longitude_)
@@ -75,7 +78,7 @@ public class LocationRepository implements AutoCloseable {
             // INSERT INTO location_ (user_id_, timestamp_, latitude_, longitude_)
             // VALUES (?, ?, ?, ?)
             stmt.setString(1, location.userId());
-            stmt.setTimestamp(2, convertTimestamp(location.timestamp()));
+            stmt.setObject(2, convertTimestamp(location.timestamp()), TIMESTAMP_WITH_TIMEZONE);
             stmt.setDouble(3, location.latitude());
             stmt.setDouble(4, location.longitude());
             stmt.executeUpdate();
@@ -106,11 +109,11 @@ public class LocationRepository implements AutoCloseable {
         }
     }
 
-    private Timestamp convertTimestamp(Instant t) {
-        return t == null ? null : new Timestamp(t.toEpochMilli());
+    private OffsetDateTime convertTimestamp(Instant t) {
+        return t == null ? null : OffsetDateTime.ofInstant(t, ZoneOffset.UTC);
     }
 
-    private Instant convertTimestamp(Timestamp t) {
-        return t == null ? null : Instant.ofEpochMilli(t.getTime());
+    private Instant convertTimestamp(OffsetDateTime t) {
+        return t == null ? null : t.toInstant();
     }
 }

@@ -1,11 +1,14 @@
 package com.github.phoswald.sample.task;
 
+import static java.sql.Types.TIMESTAMP_WITH_TIMEZONE;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +45,7 @@ public class TaskRepository implements AutoCloseable {
                 Task task = Task.builder()
                         .taskId(resultSet.getString("task_id_"))
                         .userId(resultSet.getString("user_id_"))
-                        .timestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")))
+                        .timestamp(convertTimestamp(resultSet.getObject("timestamp_", OffsetDateTime.class)))
                         .title(resultSet.getString("title_"))
                         .description(resultSet.getString("description_"))
                         .done(resultSet.getBoolean("done_"))
@@ -70,7 +73,7 @@ public class TaskRepository implements AutoCloseable {
                 Task task = Task.builder()
                         .taskId(resultSet.getString("task_id_"))
                         .userId(resultSet.getString("user_id_"))
-                        .timestamp(convertTimestamp(resultSet.getTimestamp("timestamp_")))
+                        .timestamp(convertTimestamp(resultSet.getObject("timestamp_", OffsetDateTime.class)))
                         .title(resultSet.getString("title_"))
                         .description(resultSet.getString("description_"))
                         .done(resultSet.getBoolean("done_"))
@@ -94,7 +97,7 @@ public class TaskRepository implements AutoCloseable {
                     """);
             stmt.setString(1, task.taskId());
             stmt.setString(2, task.userId());
-            stmt.setTimestamp(3, convertTimestamp(task.timestamp()));
+            stmt.setObject(3, convertTimestamp(task.timestamp()), TIMESTAMP_WITH_TIMEZONE);
             stmt.setString(4, task.title());
             stmt.setString(5, task.description());
             stmt.setBoolean(6, task.done());
@@ -127,7 +130,7 @@ public class TaskRepository implements AutoCloseable {
                     """);
             stmt.setString(5, task.taskId());
             stmt.setString(6, task.userId());
-            stmt.setTimestamp(1, convertTimestamp(task.timestamp()));
+            stmt.setObject(1, convertTimestamp(task.timestamp()), TIMESTAMP_WITH_TIMEZONE);
             stmt.setString(2, task.title());
             stmt.setString(3, task.description());
             stmt.setBoolean(4, task.done());
@@ -137,11 +140,11 @@ public class TaskRepository implements AutoCloseable {
         }
     }
 
-    private Timestamp convertTimestamp(Instant t) {
-        return t == null ? null : new Timestamp(t.toEpochMilli());
+    private OffsetDateTime convertTimestamp(Instant t) {
+        return t == null ? null : OffsetDateTime.ofInstant(t, ZoneOffset.UTC);
     }
 
-    private Instant convertTimestamp(Timestamp t) {
-        return t == null ? null : Instant.ofEpochMilli(t.getTime());
+    private Instant convertTimestamp(OffsetDateTime t) {
+        return t == null ? null : t.toInstant();
     }
 }
