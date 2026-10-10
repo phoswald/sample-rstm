@@ -30,7 +30,7 @@ public class LocationController {
         Leaflet mapData = createLeaflet(locations);
         return template.evaluate(new LocationViewModelBuilder()
                 .userId(locations == null ? "nobody" : locations.getFirst().userId())
-                .timeRange(locations == null ? "never" : formatTimeRange(locations.getLast().timestamp(), locations.getFirst().timestamp()))
+                .lastTime(locations == null ? "never" : formatDateTime(locations.getLast().timestamp()))
                 .mapDataJson(databinder.toJson(mapData))
                 .build());
     }
@@ -57,9 +57,8 @@ public class LocationController {
         return Leaflet.createWithPolyLine(points, marker);
     }
 
-    private String formatTimeRange(Instant beg, Instant end) {
-        var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-        var zone = ZoneId.systemDefault();
-        return formatter.format(beg.atZone(zone)) + " - " + formatter.format(end.atZone(zone));
+    private String formatDateTime(Instant instant) {
+        return DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+                .format(instant.atZone(ZoneId.systemDefault()));
     }
 }

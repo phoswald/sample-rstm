@@ -5,6 +5,6 @@ import com.github.phoswald.record.builder.RecordBuilder;
 @RecordBuilder
 public record LocationViewModel(
         String userId,
-        String timeRange,
+        String lastTime,
         String mapDataJson
 ) { }
