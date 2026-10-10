@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Where Been?</title>
+  <title>Where You Been?</title>
   <link rel="icon" href="../../images/java-logo.ico"/>
   <link rel="stylesheet" href="../../rstm.css"/>
   <!-- Leaflet -->
@@ -20,7 +20,12 @@
     <a href="" class="rstm-active">Locations</a>
   </nav>-->
   <main>
-    <h2>Where <span t:text="userId">???</span> Been?</h2>
+    <h2>Where You Been?</h2>
+    <p>
+      Data for <span t:text="userId">???</span>
+      and <span t:text="timeRange">???</span>
+      <a href="" class="rstm-button-outline">Refresh</a>
+    </p>
     <div id="map" class="rstm-map"></div>
     <script type="module">
       var mapData = <span t:raw="mapDataJson"/>;

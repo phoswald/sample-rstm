@@ -2,6 +2,9 @@ package com.github.phoswald.sample.location;
 
 import static com.github.phoswald.sample.location.Leaflet.point;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -26,7 +29,8 @@ public class LocationController {
         List<Location> locations = selectLocations(request);
         Leaflet mapData = createLeaflet(locations);
         return template.evaluate(new LocationViewModelBuilder()
-                .userId(locations == null ? "Nobody" : locations.getFirst().userId())
+                .userId(locations == null ? "nobody" : locations.getFirst().userId())
+                .timeRange(locations == null ? "never" : formatTimeRange(locations.getLast().timestamp(), locations.getFirst().timestamp()))
                 .mapDataJson(databinder.toJson(mapData))
                 .build());
     }
@@ -51,5 +55,11 @@ public class LocationController {
         var marker = locations == null ? null :
                 point(locations.getFirst().latitude(), locations.getFirst().longitude());
         return Leaflet.createWithPolyLine(points, marker);
+    }
+
+    private String formatTimeRange(Instant beg, Instant end) {
+        var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        var zone = ZoneId.systemDefault();
+        return formatter.format(beg.atZone(zone)) + " - " + formatter.format(end.atZone(zone));
     }
 }
