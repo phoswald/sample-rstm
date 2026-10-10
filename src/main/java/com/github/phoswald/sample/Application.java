@@ -15,6 +15,7 @@ import static com.github.phoswald.rstm.http.server.HttpServerConfig.postRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.putRest;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.resources;
 import static com.github.phoswald.rstm.http.server.HttpServerConfig.route;
+import static com.github.phoswald.rstm.http.server.HttpServerConfig.token;
 
 import java.util.List;
 
@@ -107,6 +108,7 @@ public class Application {
                 resources("/html/"),
                 route("/login", login()),
                 route("/oauth/callback", oidc()),
+                route("/token", token()),
                 route("/app/rest/sample/time",
                         getRest(text(), String.class, sampleResource::getTime)),
                 route("/app/rest/sample/config",
