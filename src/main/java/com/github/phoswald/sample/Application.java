@@ -108,7 +108,7 @@ public class Application {
                 resources("/html/"),
                 route("/login", login()),
                 route("/oauth/callback", oidc()),
-                route("/token", token()),
+                route("/oauth/token", token()),
                 route("/app/rest/sample/time",
                         getRest(text(), String.class, sampleResource::getTime)),
                 route("/app/rest/sample/config",
