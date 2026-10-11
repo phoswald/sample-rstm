@@ -3,6 +3,7 @@ package com.github.phoswald.sample;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -88,7 +89,8 @@ public class ApplicationModule {
         if (secret.isPresent() && oidcRedirectUri.isPresent()) {
             // Create a federated IDP that wraps the local IDP
             logger.info("Using federated IDP: OIDC");
-            OidcIdentityProvider federatedIdp = new OidcIdentityProvider(oidcRedirectUri.get(), secret.get(), localIdp);
+            OidcIdentityProvider federatedIdp = new OidcIdentityProvider(oidcRedirectUri.get(), secret.get(), localIdp)
+                    .withAutoExchange(config.getConfigProperty("app.oidc.autoexchange").map(Boolean::parseBoolean).orElse(false));
             // Add Dex if configured
             Optional<String> dexClientId = config.getConfigProperty("app.oidc.dex.client.id");
             Optional<String> dexClientSecret = config.getConfigProperty("app.oidc.dex.client.secret");
@@ -142,7 +144,7 @@ public class ApplicationModule {
         Optional<String> secret = config.getConfigProperty("app.jwt.secret");
         if (issuer.isPresent() && secret.isPresent()) {
             logger.info("Using JWT for local IDP");
-            return new JwtTokenProvider(issuer.get(), secret.get());
+            return new JwtTokenProvider(issuer.get(), secret.get(), Duration.ofDays(7));
         } else {
             return new SimpleTokenProvider();
         }
