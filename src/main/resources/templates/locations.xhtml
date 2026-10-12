@@ -4,28 +4,25 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Where You Been?</title>
-  <link rel="icon" href="../../images/java-logo.ico"/>
+  <link rel="icon" href="../../images/where-you-been.ico"/>
   <link rel="stylesheet" href="../../rstm.css"/>
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-  <!--<header>
-    <img src="../../images/java-logo.svg" alt="Java Logo"/>
-    <span>RSTM Sample Service</span>
-  </header>-->
-  <!--<nav>
-    <a href="../../">Home</a>
-    <a href="" class="rstm-active">Locations</a>
-  </nav>-->
-  <main>
+  <main style="margin: 0; border: 0; border-radius: 0;">
+    <div class="rstm-fill">
+      <div class="rstm-fill-other">
+        <div class="rstm-inputgroup">
+          <span t:text="userId">???</span>
+          <span t:text="lastTime">???</span>
+          <a href="" class="rstm-button-outline">Refresh</a>
+        </div>
+      </div>
+      <div class="rstm-fill-remaining" id="map"></div>
+    </div>
     <h2>Where You Been?</h2>
-    <p>
-      Data for <span t:text="userId">???</span>
-      up to <span t:text="lastTime">???</span>
-      <a href="" class="rstm-button-outline">Refresh</a>
-    </p>
     <div id="map" class="rstm-map"></div>
     <script type="module">
       var mapData = <span t:raw="mapDataJson"/>;

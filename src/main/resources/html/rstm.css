@@ -146,7 +146,6 @@ nav a.rstm-active span.rstm-sidebar-icon {
 
 main {
     margin: 8px;
-    flex: 1; /* fill available space, horizontally */
     border-radius: 16px;
     padding: 16px;
     min-width: 0;
@@ -486,11 +485,44 @@ img.rstm-avatar {
     max-width: 100%;
 }
 
-/* ****** Map (leaflet.js) ****** */
+/* ****** Filler ****** */
 
-.rstm-map {
+/* To be used with <div>! Can be used with Leaflet.js! */
+.rstm-square {
     margin: 14px 0;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    /*border: 1px solid var(--border-color);*/
     aspect-ratio: 1 / 1;
+}
+
+/* 
+ * To be used with <div>! Can be used with Leaflet.js!
+ * Children must be between one and three <div> with
+ * either .rstm-fill-remaining (exactly one) 
+ * or .rstm-fill-other (before or after, optional).
+ * The handling of :first-child and :last-child is duplicated from <main>
+ */
+.rstm-fill {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* of <main>, which is stretched by the body grid */
+}
+
+.rstm-fill-remaining {
+    margin: 14px 0;
+    border-radius: 8px;
+    /*border: 1px solid var(--border-color);*/
+    flex: 1; /* take remaining height inside .rstm-fill */
+    min-width: 300px; /* on small screens: scroll instead of disappear */
+    min-height: 300px; /* on small screens: scroll instead of disappear */
+}
+
+.rstm-fill-remaining:first-child,
+.rstm-fill-other > :first-child {
+    margin-top: 0;
+}
+
+.rstm-fill-remaining:last-child,
+.rstm-fill-other > :last-child {
+    margin-bottom: 0;
 }
