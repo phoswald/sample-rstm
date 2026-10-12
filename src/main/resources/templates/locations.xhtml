@@ -6,6 +6,7 @@
   <title>Where You Been?</title>
   <link rel="icon" href="../../images/where-you-been.ico"/>
   <link rel="stylesheet" href="../../rstm.css"/>
+  <link rel="stylesheet" href="../../locations.css"/>
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -14,16 +15,18 @@
   <main style="margin: 0; border: 0; border-radius: 0;">
     <div class="rstm-fill">
       <div class="rstm-fill-other">
-        <div class="rstm-inputgroup">
-          <span t:text="userId">???</span>
-          <span t:text="lastTime">???</span>
-          <a href="" class="rstm-button-outline">Refresh</a>
+        <div class="rstm-grid">
+          <img src="../../images/user.svg" class="rstm-grid-icon" alt=""/>
+          <span t:text="userId" class="rstm-grid-text">???</span>
+          <img src="../../images/clock.svg" alt="" class="rstm-grid-icon"/>
+          <span t:text="lastTime" class="rstm-grid-text">???</span>
+          <a href=""  class="rstm-button-outline rstm-button-icon rstm-grid-action" title="Refresh">
+            <img src="../../images/refresh.svg" alt=""/>
+          </a>
         </div>
       </div>
       <div class="rstm-fill-remaining" id="map"></div>
     </div>
-    <h2>Where You Been?</h2>
-    <div id="map" class="rstm-map"></div>
     <script type="module">
       var mapData = <span t:raw="mapDataJson"/>;
       var map = L.map('map');

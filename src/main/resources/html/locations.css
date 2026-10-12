@@ -1,0 +1,57 @@
+
+/* ****** Button ****** */
+
+/* button with img only, no text */
+.rstm-button-icon {
+    padding: 4px; /* square, overrides padding of .rstm-button */
+    width: 30px; /* square, matches height of .rstm-button */
+    /* justify-content: center; */
+}
+
+/* ****** Grid of icon, text, action ****** */
+
+/*
+ * To be used with <div>! Children are placed by class; a new row starts
+ * with each .rstm-grid-icon. Cells may be omitted (e.g. no action).
+ */
+.rstm-grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: start;
+    align-items: center;
+    gap: 8px;
+}
+
+.rstm-grid-icon {
+    grid-column: 1;
+    width: 16px;
+    height: 16px;
+}
+
+.rstm-grid-text {
+    grid-column: 2;
+    min-width: 0;
+    overflow-wrap: anywhere; /* long texts wrap instead of widening the page */
+}
+
+.rstm-grid-action {
+    grid-column: 3;
+}
+
+/* align icon and first text line with each other (line height 21px) ... */
+/*
+.rstm-grid-icon {
+    margin-top: 2.5px;
+}
+*/
+
+/* ... and with the action button (height 30px), if the row has one */
+/*
+.rstm-grid-icon:has(+ .rstm-grid-text + .rstm-grid-action) {
+    margin-top: 7px;
+}
+
+.rstm-grid-text:has(+ .rstm-grid-action) {
+    padding-top: 4.5px;
+}
+*/
